@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/lib/supabase";
 
-export default function LoginForm() {
+const LoginForm = () => {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [nisn, setNisn] = useState("");
   const [name, setName] = useState("");
@@ -36,26 +36,39 @@ export default function LoginForm() {
 
     try {
       validateInput();
-      // Check if NISN is valid (10 digits)
-      if (!/^\d{10}$/.test(nisn)) {
-        throw new Error("NISN must be exactly 10 digits");
-      }
 
-      // First check if user exists
-      const { data: existingUser } = await supabase
-        .from("users")
-        .select()
-        .eq("nisn", nisn)
-        .single();
+      if (mode === "login") {
+        // Login mode: Check if user exists and verify credentials
+        const { data: existingUser } = await supabase
+          .from("users")
+          .select()
+          .eq("nisn", nisn)
+          .single();
 
-      if (existingUser) {
-        // If user exists, verify name matches
+        if (!existingUser) {
+          throw new Error(
+            "NISN not found. Please sign up if you're a new user.",
+          );
+        }
+
         if (existingUser.name.toLowerCase() !== name.toLowerCase()) {
           throw new Error("Incorrect name for this NISN");
         }
+
         localStorage.setItem("user", JSON.stringify(existingUser));
       } else {
-        // If user doesn't exist, create new user
+        // Signup mode: Check if NISN already exists
+        const { data: existingUser } = await supabase
+          .from("users")
+          .select()
+          .eq("nisn", nisn)
+          .single();
+
+        if (existingUser) {
+          throw new Error("NISN already registered. Please login instead.");
+        }
+
+        // Create new user
         const { data: newUser, error: createError } = await supabase
           .from("users")
           .insert({ nisn, name })
@@ -76,44 +89,55 @@ export default function LoginForm() {
 
   return (
     <Card className="w-[400px] bg-white">
-      <Tabs value={mode} onValueChange={(v) => setMode(v as "login" | "signup")}>
-      <CardHeader>
-        <CardTitle className="text-center">OSIS Forum</CardTitle>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="login">Login</TabsTrigger>
-          <TabsTrigger value="signup">Sign Up</TabsTrigger>
-        </TabsList>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="nisn">NISN</Label>
-            <Input
-              id="nisn"
-              required
-              maxLength={10}
-              value={nisn}
-              onChange={(e) => setNisn(e.target.value)}
-              placeholder="Enter your NISN"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
-            <Input
-              id="name"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your full name"
-            />
-          </div>
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? (mode === "login" ? "Logging in..." : "Signing up...") : (mode === "login" ? "Login" : "Sign Up")}
-          </Button>
-        </form>
-      </CardContent>
+      <Tabs
+        value={mode}
+        onValueChange={(v) => setMode(v as "login" | "signup")}
+      >
+        <CardHeader>
+          <CardTitle className="text-center">OSIS Forum</CardTitle>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="login">Login</TabsTrigger>
+            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+          </TabsList>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="nisn">NISN</Label>
+              <Input
+                id="nisn"
+                required
+                maxLength={10}
+                value={nisn}
+                onChange={(e) => setNisn(e.target.value)}
+                placeholder="Enter your NISN"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter your full name"
+              />
+            </div>
+            {error && <p className="text-sm text-red-500">{error}</p>}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading
+                ? mode === "login"
+                  ? "Logging in..."
+                  : "Signing up..."
+                : mode === "login"
+                  ? "Login"
+                  : "Sign Up"}
+            </Button>
+          </form>
+        </CardContent>
       </Tabs>
     </Card>
   );
-}
+};
+
+export default LoginForm;
