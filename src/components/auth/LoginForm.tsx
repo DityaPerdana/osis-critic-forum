@@ -113,6 +113,7 @@ export default function LoginForm() {
           </Button>
         </form>
       </CardContent>
+      </Tabs>
     </Card>
   );
 }
