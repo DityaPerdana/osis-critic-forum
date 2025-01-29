@@ -5,6 +5,7 @@ import CreatePostDialog from "./forum/CreatePostDialog";
 import CommentSection from "./forum/CommentSection";
 import LoginForm from "./auth/LoginForm";
 import { supabase } from "@/lib/supabase";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface HomeProps {}
 
@@ -18,6 +19,56 @@ const Home = ({}: HomeProps) => {
   const [posts, setPosts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [sortBy, setSortBy] = useState<"newest" | "mostLiked">("newest");
+  const [userVotes, setUserVotes] = useState<{ [key: string]: "up" | "down" }>(
+    {},
+  );
+  const [userCommentVotes, setUserCommentVotes] = useState<{
+    [key: string]: "up" | "down";
+  }>({});
+
+  useEffect(() => {
+    const fetchUserVotes = async () => {
+      const userData = localStorage.getItem("user");
+      if (!userData) return;
+      const { id: userId } = JSON.parse(userData);
+
+      // Fetch post votes
+      const { data: postVotes } = await supabase
+        .from("post_votes")
+        .select("post_id, vote_type")
+        .eq("user_id", userId);
+
+      if (postVotes) {
+        const votes = postVotes.reduce(
+          (acc, vote) => ({
+            ...acc,
+            [vote.post_id]: vote.vote_type,
+          }),
+          {},
+        );
+        setUserVotes(votes);
+      }
+
+      // Fetch comment votes
+      const { data: commentVotes } = await supabase
+        .from("comment_votes")
+        .select("comment_id, vote_type")
+        .eq("user_id", userId);
+
+      if (commentVotes) {
+        const votes = commentVotes.reduce(
+          (acc, vote) => ({
+            ...acc,
+            [vote.comment_id]: vote.vote_type,
+          }),
+          {},
+        );
+        setUserCommentVotes(votes);
+      }
+    };
+
+    fetchUserVotes();
+  }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -55,6 +106,26 @@ const Home = ({}: HomeProps) => {
         return;
       }
 
+      // Fetch comment counts for each post
+      const commentCounts = await Promise.all(
+        data.map(async (post) => {
+          const { count } = await supabase
+            .from("comments")
+            .select("id", { count: "exact" })
+            .eq("post_id", post.id);
+          return { postId: post.id, count };
+        }),
+      );
+
+      // Create a map of post ID to comment count
+      const commentCountMap = commentCounts.reduce(
+        (acc, { postId, count }) => ({
+          ...acc,
+          [postId]: count,
+        }),
+        {},
+      );
+
       setPosts(
         data.map((post) => ({
           id: post.id,
@@ -66,13 +137,13 @@ const Home = ({}: HomeProps) => {
           },
           timestamp: new Date(post.created_at).toLocaleString(),
           votes: post.votes,
-          commentCount: 0,
+          commentCount: commentCountMap[post.id] || 0,
         })),
       );
     };
 
     fetchPosts();
-  }, []);
+  }, [sortBy]);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -108,6 +179,7 @@ const Home = ({}: HomeProps) => {
         content: data.content,
         user_id: userId,
         category_id: data.categoryId,
+        votes: 0,
       });
 
       if (error) throw error;
@@ -120,6 +192,39 @@ const Home = ({}: HomeProps) => {
 
   const handleVote = async (postId: string, type: "up" | "down") => {
     try {
+      const userData = localStorage.getItem("user");
+      if (!userData) return;
+      const { id: userId } = JSON.parse(userData);
+
+      const existingVote = userVotes[postId];
+      let voteChange = 0;
+
+      if (existingVote === type) {
+        // Remove vote if clicking same button
+        await supabase
+          .from("post_votes")
+          .delete()
+          .eq("user_id", userId)
+          .eq("post_id", postId);
+        voteChange = type === "up" ? -1 : 1;
+        setUserVotes((prev) => {
+          const newVotes = { ...prev };
+          delete newVotes[postId];
+          return newVotes;
+        });
+      } else {
+        // Add or update vote
+        await supabase.from("post_votes").upsert({
+          user_id: userId,
+          post_id: postId,
+          vote_type: type,
+        });
+        voteChange =
+          type === "up" ? (existingVote ? 2 : 1) : existingVote ? -2 : -1;
+        setUserVotes((prev) => ({ ...prev, [postId]: type }));
+      }
+
+      // Update post votes
       const { data: post } = await supabase
         .from("posts")
         .select("votes")
@@ -128,14 +233,8 @@ const Home = ({}: HomeProps) => {
 
       if (!post) return;
 
-      const newVotes = post.votes + (type === "up" ? 1 : -1);
-
-      const { error } = await supabase
-        .from("posts")
-        .update({ votes: newVotes })
-        .eq("id", postId);
-
-      if (error) throw error;
+      const newVotes = (post.votes || 0) + voteChange;
+      await supabase.from("posts").update({ votes: newVotes }).eq("id", postId);
 
       setPosts(
         posts.map((p) => (p.id === postId ? { ...p, votes: newVotes } : p)),
@@ -189,6 +288,7 @@ const Home = ({}: HomeProps) => {
         user_id: userId,
         post_id: selectedPost,
         parent_id: parentId || null,
+        votes: 0,
       });
 
       if (error) throw error;
@@ -200,6 +300,39 @@ const Home = ({}: HomeProps) => {
 
   const handleCommentVote = async (commentId: string, type: "up" | "down") => {
     try {
+      const userData = localStorage.getItem("user");
+      if (!userData) return;
+      const { id: userId } = JSON.parse(userData);
+
+      const existingVote = userCommentVotes[commentId];
+      let voteChange = 0;
+
+      if (existingVote === type) {
+        // Remove vote if clicking same button
+        await supabase
+          .from("comment_votes")
+          .delete()
+          .eq("user_id", userId)
+          .eq("comment_id", commentId);
+        voteChange = type === "up" ? -1 : 1;
+        setUserCommentVotes((prev) => {
+          const newVotes = { ...prev };
+          delete newVotes[commentId];
+          return newVotes;
+        });
+      } else {
+        // Add or update vote
+        await supabase.from("comment_votes").upsert({
+          user_id: userId,
+          comment_id: commentId,
+          vote_type: type,
+        });
+        voteChange =
+          type === "up" ? (existingVote ? 2 : 1) : existingVote ? -2 : -1;
+        setUserCommentVotes((prev) => ({ ...prev, [commentId]: type }));
+      }
+
+      // Update comment votes
       const { data: comment } = await supabase
         .from("comments")
         .select("votes")
@@ -208,14 +341,11 @@ const Home = ({}: HomeProps) => {
 
       if (!comment) return;
 
-      const newVotes = (comment.votes || 0) + (type === "up" ? 1 : -1);
-
-      const { error } = await supabase
+      const newVotes = (comment.votes || 0) + voteChange;
+      await supabase
         .from("comments")
         .update({ votes: newVotes })
         .eq("id", commentId);
-
-      if (error) throw error;
 
       setComments(
         comments.map((c) =>
@@ -239,9 +369,11 @@ const Home = ({}: HomeProps) => {
             onCommentClick={handleCommentClick}
             sortBy={sortBy}
             onSortChange={setSortBy}
+            userVotes={userVotes}
           />
         </div>
 
+        {/* Desktop Comments */}
         {selectedPost && (
           <div className="w-[400px] hidden lg:block">
             <div className="sticky top-24">
@@ -249,10 +381,28 @@ const Home = ({}: HomeProps) => {
                 comments={comments}
                 onAddComment={handleAddComment}
                 onVote={handleCommentVote}
+                userVotes={userCommentVotes}
               />
             </div>
           </div>
         )}
+
+        {/* Mobile Comments Dialog */}
+        <div className="lg:hidden">
+          <Dialog
+            open={selectedPost !== null}
+            onOpenChange={() => setSelectedPost(null)}
+          >
+            <DialogContent className="max-w-[95vw] h-[90vh]">
+              <CommentSection
+                comments={comments}
+                onAddComment={handleAddComment}
+                onVote={handleCommentVote}
+                userVotes={userCommentVotes}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </main>
 
       <CreatePostDialog

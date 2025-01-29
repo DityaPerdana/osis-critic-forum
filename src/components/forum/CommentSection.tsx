@@ -19,6 +19,7 @@ interface Comment {
 
 interface CommentSectionProps {
   comments?: Comment[];
+  userVotes?: { [key: string]: "up" | "down" };
   onAddComment?: (content: string, parentId?: string) => void;
   onVote?: (commentId: string, type: "up" | "down") => void;
 }
@@ -27,6 +28,7 @@ const CommentSection = ({
   comments = [],
   onAddComment = () => {},
   onVote = () => {},
+  userVotes = {},
 }: CommentSectionProps) => {
   const [expandedComments, setExpandedComments] = React.useState<Set<string>>(
     new Set(),
@@ -72,7 +74,7 @@ const CommentSection = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="hover:text-blue-500 h-8 w-8 p-0"
+                  className={`h-8 w-8 p-0 hover:text-blue-500 ${userVotes?.[comment.id] === "up" ? "text-blue-500" : ""}`}
                   onClick={() => onVote(comment.id, "up")}
                 >
                   <ThumbsUp className="h-4 w-4" />
@@ -81,7 +83,7 @@ const CommentSection = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="hover:text-red-500 h-8 w-8 p-0"
+                  className={`h-8 w-8 p-0 hover:text-red-500 ${userVotes?.[comment.id] === "down" ? "text-red-500" : ""}`}
                   onClick={() => onVote(comment.id, "down")}
                 >
                   <ThumbsDown className="h-4 w-4" />

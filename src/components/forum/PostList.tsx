@@ -19,56 +19,18 @@ interface PostListProps {
   sortBy?: "newest" | "mostLiked";
   onSortChange?: (sort: "newest" | "mostLiked") => void;
   posts?: Post[];
+  userVotes?: { [key: string]: "up" | "down" };
   onVote?: (postId: string, type: "up" | "down") => void;
   onCommentClick?: (postId: string) => void;
 }
 
 const PostList = ({
-  posts = [
-    {
-      id: "1",
-      title: "Introducing New Study Groups Initiative",
-      content:
-        "We're launching weekly study groups for different subjects. Join us to enhance your learning experience!",
-      author: {
-        name: "Sarah Chen",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-      },
-      timestamp: "3 hours ago",
-      votes: 56,
-      commentCount: 23,
-    },
-    {
-      id: "2",
-      title: "Upcoming School Events Calendar",
-      content:
-        "Check out the schedule for this month's activities, including sports tournaments and cultural festivals.",
-      author: {
-        name: "Mike Johnson",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mike",
-      },
-      timestamp: "5 hours ago",
-      votes: 34,
-      commentCount: 15,
-    },
-    {
-      id: "3",
-      title: "Feedback on New Cafeteria Menu",
-      content:
-        "Let's discuss the recent changes to our cafeteria menu and share our thoughts on the new options.",
-      author: {
-        name: "Lisa Wong",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa",
-      },
-      timestamp: "1 day ago",
-      votes: 89,
-      commentCount: 45,
-    },
-  ],
+  posts = [],
   onVote = () => {},
   onCommentClick = () => {},
   sortBy = "newest",
   onSortChange = () => {},
+  userVotes = {},
 }: PostListProps) => {
   return (
     <div className="w-full max-w-3xl mx-auto bg-gray-50 p-4 rounded-lg">
@@ -96,6 +58,7 @@ const PostList = ({
               votes={post.votes}
               commentCount={post.commentCount}
               onVote={(type) => onVote(post.id, type)}
+              userVote={userVotes?.[post.id]}
               onCommentClick={() => onCommentClick(post.id)}
             />
           ))}

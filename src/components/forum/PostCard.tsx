@@ -19,6 +19,7 @@ interface PostCardProps {
   timestamp?: string;
   votes?: number;
   commentCount?: number;
+  userVote?: "up" | "down";
   onVote?: (type: "up" | "down") => void;
   onCommentClick?: () => void;
 }
@@ -35,6 +36,7 @@ const PostCard = ({
   commentCount = 12,
   onVote = () => {},
   onCommentClick = () => {},
+  userVote,
 }: PostCardProps) => {
   return (
     <Card className="w-full mb-4 bg-white hover:shadow-lg transition-shadow">
@@ -59,7 +61,7 @@ const PostCard = ({
             <Button
               variant="ghost"
               size="sm"
-              className="hover:text-blue-500"
+              className={`hover:text-blue-500 ${userVote === "up" ? "text-blue-500" : ""}`}
               onClick={() => onVote("up")}
             >
               <ThumbsUp className="h-4 w-4 mr-1" />
@@ -68,7 +70,7 @@ const PostCard = ({
             <Button
               variant="ghost"
               size="sm"
-              className="hover:text-red-500"
+              className={`hover:text-red-500 ${userVote === "down" ? "text-red-500" : ""}`}
               onClick={() => onVote("down")}
             >
               <ThumbsDown className="h-4 w-4" />
