@@ -273,6 +273,7 @@ const Home = ({}: HomeProps) => {
         timestamp: new Date(comment.created_at).toLocaleString(),
         votes: comment.votes || 0,
         parent_id: comment.parent_id,
+        replies: [], // Will be populated by the CommentSection component
       })),
     );
   };
