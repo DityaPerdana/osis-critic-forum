@@ -88,55 +88,62 @@ const LoginForm = () => {
   };
 
   return (
-    <Card className="w-[400px] bg-white">
-      <Tabs
-        value={mode}
-        onValueChange={(v) => setMode(v as "login" | "signup")}
-      >
-        <CardHeader>
-          <CardTitle className="text-center">OSIS Forum</CardTitle>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
-          </TabsList>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="nisn">NISN</Label>
-              <Input
-                id="nisn"
-                required
-                maxLength={10}
-                value={nisn}
-                onChange={(e) => setNisn(e.target.value)}
-                placeholder="Enter your NISN"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your full name"
-              />
-            </div>
-            {error && <p className="text-sm text-red-500">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading
-                ? mode === "login"
-                  ? "Logging in..."
-                  : "Signing up..."
-                : mode === "login"
-                  ? "Login"
-                  : "Sign Up"}
-            </Button>
-          </form>
-        </CardContent>
-      </Tabs>
-    </Card>
+    <div 
+      className="min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat p-4"
+      style={{ backgroundImage: "url('/idk.webp')" }}
+    >
+      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm">
+        <Tabs
+          value={mode}
+          onValueChange={(v) => setMode(v as "login" | "signup")}
+        >
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">
+              {mode === "login" ? "Login" : "Sign Up"}
+            </CardTitle>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="nisn">NISN</Label>
+                <Input
+                  id="nisn"
+                  required
+                  maxLength={10}
+                  value={nisn}
+                  onChange={(e) => setNisn(e.target.value)}
+                  placeholder="Enter your NISN"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your full name"
+                />
+              </div>
+              {error && <p className="text-sm text-red-500">{error}</p>}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading
+                  ? mode === "login"
+                    ? "Logging in..."
+                    : "Signing up..."
+                  : mode === "login"
+                    ? "Login"
+                    : "Sign Up"}
+              </Button>
+            </form>
+          </CardContent>
+        </Tabs>
+      </Card>
+    </div>
   );
 };
 
