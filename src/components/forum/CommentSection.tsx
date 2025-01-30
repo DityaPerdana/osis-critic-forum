@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThumbsUp, ThumbsDown, ChevronDown, ChevronUp } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import RoleBadge from "@/lib/roles";
 import { Textarea } from "@/components/ui/textarea";
 
 interface Comment {
@@ -12,11 +11,9 @@ interface Comment {
   author: {
     name: string;
     avatar: string;
-    role?: string;
   };
   timestamp: string;
   votes: number;
-  parent_id?: string | null;
   replies?: Comment[];
 }
 
@@ -28,43 +25,16 @@ interface CommentSectionProps {
 }
 
 const CommentSection = ({
-  comments: rawComments = [],
+  comments = [],
   onAddComment = () => {},
   onVote = () => {},
   userVotes = {},
 }: CommentSectionProps) => {
-  // Transform flat comments into a tree structure
-  const comments = React.useMemo(() => {
-    const commentMap = new Map();
-
-    // First pass: Create all comment objects
-    rawComments.forEach((comment) => {
-      commentMap.set(comment.id, {
-        ...comment,
-        replies: [],
-      });
-    });
-
-    // Second pass: Build the tree structure
-    const rootComments = [];
-    rawComments.forEach((comment) => {
-      const commentWithReplies = commentMap.get(comment.id);
-      if (comment.parent_id && commentMap.has(comment.parent_id)) {
-        const parent = commentMap.get(comment.parent_id);
-        parent.replies.push(commentWithReplies);
-      } else {
-        rootComments.push(commentWithReplies);
-      }
-    });
-
-    return rootComments;
-  }, [rawComments]);
   const [expandedComments, setExpandedComments] = React.useState<Set<string>>(
     new Set(),
   );
   const [replyingTo, setReplyingTo] = React.useState<string | null>(null);
   const [newComment, setNewComment] = React.useState("");
-  const [replyText, setReplyText] = React.useState("");
 
   const toggleExpanded = (commentId: string) => {
     const newExpanded = new Set(expandedComments);
@@ -83,7 +53,7 @@ const CommentSection = ({
     return (
       <div
         key={comment.id}
-        className={`w-full bg-white rounded-lg p-4 mb-2 ${depth > 0 ? `ml-${Math.min(depth * 4, 16)}` : ""} ${depth > 0 ? "border-l-2 border-gray-100" : ""}`}
+        className={`w-full bg-white rounded-lg p-4 mb-2 ${depth > 0 ? "ml-8" : ""}`}
       >
         <div className="flex items-start gap-4">
           <Avatar className="h-8 w-8">
@@ -95,12 +65,7 @@ const CommentSection = ({
           </Avatar>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">{comment.author.name}</span>
-                {comment.author.role && (
-                  <RoleBadge role={comment.author.role as "admin" | "user"} />
-                )}
-              </div>
+              <span className="font-semibold">{comment.author.name}</span>
               <span className="text-sm text-gray-500">{comment.timestamp}</span>
             </div>
             <p className="mt-1 text-gray-700">{comment.content}</p>
@@ -156,8 +121,8 @@ const CommentSection = ({
               <div className="mt-4">
                 <Textarea
                   placeholder="Write a reply..."
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
                   className="min-h-[100px]"
                 />
                 <div className="flex justify-end gap-2 mt-2">
@@ -165,16 +130,16 @@ const CommentSection = ({
                     variant="outline"
                     onClick={() => {
                       setReplyingTo(null);
-                      setReplyText("");
+                      setNewComment("");
                     }}
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={() => {
-                      onAddComment(replyText, comment.id);
+                      onAddComment(newComment, comment.id);
                       setReplyingTo(null);
-                      setReplyText("");
+                      setNewComment("");
                     }}
                   >
                     Reply
@@ -214,7 +179,7 @@ const CommentSection = ({
         </div>
       </div>
       <ScrollArea className="h-[500px] pr-4">
-        {comments.map((comment) => renderComment(comment, 0))}
+        {comments.map((comment) => renderComment(comment))}
       </ScrollArea>
     </div>
   );

@@ -1,7 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { PenSquare, Bell, LogOut } from "lucide-react";
-import RoleBadge from "@/lib/roles";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +22,6 @@ interface ForumHeaderProps {
   user?: {
     name: string;
     avatar: string;
-    role?: string;
   };
 }
 
@@ -83,11 +81,6 @@ const ForumHeader = ({
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              {user.role && (
-                <DropdownMenuItem className="cursor-default">
-                  <RoleBadge role={user.role as "admin" | "user"} />
-                </DropdownMenuItem>
-              )}
               <DropdownMenuItem
                 onClick={() => {
                   localStorage.removeItem("user");
