@@ -10,9 +10,11 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 interface HomeProps {}
 
 const Home = ({}: HomeProps) => {
-  const [user, setUser] = useState<{ name: string; avatar: string } | null>(
-    null,
-  );
+  const [user, setUser] = useState<{
+    name: string;
+    avatar: string;
+    role?: string;
+  } | null>(null);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
   const [comments, setComments] = useState<any[]>([]);
@@ -134,6 +136,7 @@ const Home = ({}: HomeProps) => {
           author: {
             name: post.users.name,
             avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.users.name}`,
+            role: post.users.role,
           },
           timestamp: new Date(post.created_at).toLocaleString(),
           votes: post.votes,
@@ -152,6 +155,7 @@ const Home = ({}: HomeProps) => {
       setUser({
         name: parsedUser.name,
         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${parsedUser.name}`,
+        role: parsedUser.role,
       });
     }
   }, []);
@@ -269,10 +273,12 @@ const Home = ({}: HomeProps) => {
         author: {
           name: comment.users.name,
           avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.users.name}`,
+          role: comment.users.role,
         },
         timestamp: new Date(comment.created_at).toLocaleString(),
         votes: comment.votes || 0,
         parent_id: comment.parent_id,
+        replies: [], // Will be populated by the CommentSection component
       })),
     );
   };
