@@ -14,9 +14,9 @@ const LoginForm = () => {
   const [error, setError] = useState("");
 
   const validateInput = () => {
-    // Validate NISN (10 digits)
-    if (!/^\d{10}$/.test(nisn)) {
-      throw new Error("NISN must be exactly 10 digits");
+    // Validate NISN (8-10 digits)
+    if (!/^\d{8,10}$/.test(nisn)) {
+      throw new Error("NISN must be between 8-10 digits");
     }
 
     // Validate name (no numbers)
@@ -88,7 +88,7 @@ const LoginForm = () => {
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat p-4"
       style={{ backgroundImage: "url('/idk.webp')" }}
     >
@@ -114,6 +114,7 @@ const LoginForm = () => {
                   id="nisn"
                   required
                   maxLength={10}
+                  minLength={8}
                   value={nisn}
                   onChange={(e) => setNisn(e.target.value)}
                   placeholder="Enter your NISN"

@@ -1,20 +1,12 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { PenSquare, Bell, LogOut } from "lucide-react";
+import { PenSquare, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ForumHeaderProps {
@@ -37,26 +29,6 @@ const ForumHeader = ({
       <div className="container mx-auto h-full px-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-bold">OSIS Forum</h1>
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>Categories</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="w-48 p-2">
-                    <NavigationMenuLink className="block px-2 py-1 hover:bg-gray-100 rounded">
-                      General Discussion
-                    </NavigationMenuLink>
-                    <NavigationMenuLink className="block px-2 py-1 hover:bg-gray-100 rounded">
-                      Announcements
-                    </NavigationMenuLink>
-                    <NavigationMenuLink className="block px-2 py-1 hover:bg-gray-100 rounded">
-                      Events
-                    </NavigationMenuLink>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
         </div>
 
         <div className="flex items-center gap-4">
@@ -67,10 +39,6 @@ const ForumHeader = ({
           >
             <PenSquare className="h-4 w-4" />
             Create Post
-          </Button>
-
-          <Button variant="ghost" size="icon">
-            <Bell className="h-5 w-5" />
           </Button>
 
           <DropdownMenu>
