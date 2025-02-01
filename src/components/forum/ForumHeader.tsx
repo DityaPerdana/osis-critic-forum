@@ -25,7 +25,7 @@ const ForumHeader = ({
   },
 }: ForumHeaderProps) => {
   return (
-    <header className="w-full h-16 bg-white border-b border-gray-200 fixed top-0 left-0 z-50">
+    <header className="w-full h-16 bg-white border-b border-gray-200">
       <div className="container mx-auto h-full px-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-bold">OSIS Forum</h1>

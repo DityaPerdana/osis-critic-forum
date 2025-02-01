@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import ForumHeader from "./forum/ForumHeader";
 import PostList from "./forum/PostList";
 import CreatePostDialog from "./forum/CreatePostDialog";
@@ -359,8 +361,22 @@ const Home = ({}: HomeProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <ForumHeader user={user} onCreatePost={() => setIsCreatePostOpen(true)} />
+    <div className="min-h-screen bg-gray-100 overflow-auto">
+      <div className="fixed top-0 left-0 w-full z-50 bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 flex items-center h-16">
+          <Link
+            to="/"
+            className="text-gray-600 hover:text-blue-600 flex items-center gap-2 mr-8"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            Kembali ke Beranda
+          </Link>
+          <ForumHeader
+            user={user}
+            onCreatePost={() => setIsCreatePostOpen(true)}
+          />
+        </div>
+      </div>
 
       <main className="container mx-auto pt-24 px-4 flex gap-6">
         <div className="flex-1">

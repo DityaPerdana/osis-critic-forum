@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,62 +90,79 @@ const LoginForm = () => {
   };
 
   return (
-    <div
-      className="min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat p-4"
-      style={{ backgroundImage: "url('/idk.webp')" }}
-    >
-      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm">
-        <Tabs
-          value={mode}
-          onValueChange={(v) => setMode(v as "login" | "signup")}
-        >
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">
-              {mode === "login" ? "Login" : "Sign Up"}
-            </CardTitle>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="nisn">NISN</Label>
-                <Input
-                  id="nisn"
-                  required
-                  maxLength={10}
-                  minLength={8}
-                  value={nisn}
-                  onChange={(e) => setNisn(e.target.value)}
-                  placeholder="Enter your NISN"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your full name"
-                />
-              </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading
-                  ? mode === "login"
-                    ? "Logging in..."
-                    : "Signing up..."
-                  : mode === "login"
-                    ? "Login"
-                    : "Sign Up"}
-              </Button>
-            </form>
-          </CardContent>
-        </Tabs>
-      </Card>
+    <div className="min-h-screen w-full relative">
+      {/* Background Image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/idk.webp')" }}
+      />
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/50" />
+      {/* Content */}
+      <div className="relative z-10 w-full min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="absolute top-4 left-4 z-20">
+          <Link
+            to="/"
+            className="text-white hover:text-blue-200 flex items-center gap-2 transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            Kembali ke Beranda
+          </Link>
+        </div>
+
+        <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm">
+          <Tabs
+            value={mode}
+            onValueChange={(v) => setMode(v as "login" | "signup")}
+          >
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold text-center">
+                {mode === "login" ? "Login" : "Sign Up"}
+              </CardTitle>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="nisn">NISN</Label>
+                  <Input
+                    id="nisn"
+                    required
+                    maxLength={10}
+                    minLength={8}
+                    value={nisn}
+                    onChange={(e) => setNisn(e.target.value)}
+                    placeholder="Enter your NISN"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                {error && <p className="text-sm text-red-500">{error}</p>}
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading
+                    ? mode === "login"
+                      ? "Logging in..."
+                      : "Signing up..."
+                    : mode === "login"
+                      ? "Login"
+                      : "Sign Up"}
+                </Button>
+              </form>
+            </CardContent>
+          </Tabs>
+        </Card>
+      </div>
     </div>
   );
 };
