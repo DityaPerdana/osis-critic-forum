@@ -74,14 +74,19 @@ const Home = ({}: HomeProps) => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const { data, error } = await supabase.from("categories").select("*");
+      try {
+        const { data, error } = await supabase.from("categories").select("*");
 
-      if (error) {
-        console.error("Error fetching categories:", error);
-        return;
+        if (error) {
+          console.error("Error fetching categories:", error);
+          return;
+        }
+
+        setCategories(data || []);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        setCategories([]);
       }
-
-      setCategories(data);
     };
 
     fetchCategories();
@@ -89,59 +94,78 @@ const Home = ({}: HomeProps) => {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const query = supabase.from("posts").select(`
+      try {
+        const query = supabase.from("posts").select(`
           *,
           users:user_id (*)
         `);
 
-      // Apply sorting
-      if (sortBy === "newest") {
-        query.order("created_at", { ascending: false });
-      } else if (sortBy === "mostLiked") {
-        query.order("votes", { ascending: false });
+        // Apply sorting
+        if (sortBy === "newest") {
+          query.order("created_at", { ascending: false });
+        } else if (sortBy === "mostLiked") {
+          query.order("votes", { ascending: false });
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+          console.error("Error fetching posts:", error);
+          setPosts([]);
+          return;
+        }
+
+        if (!data) {
+          setPosts([]);
+          return;
+        }
+
+        // Fetch comment counts for each post
+        const commentCounts = await Promise.all(
+          data.map(async (post) => {
+            try {
+              const { count } = await supabase
+                .from("comments")
+                .select("id", { count: "exact" })
+                .eq("post_id", post.id);
+              return { postId: post.id, count };
+            } catch (err) {
+              console.error(
+                `Error fetching comments for post ${post.id}:`,
+                err,
+              );
+              return { postId: post.id, count: 0 };
+            }
+          }),
+        );
+
+        // Create a map of post ID to comment count
+        const commentCountMap = commentCounts.reduce(
+          (acc, { postId, count }) => ({
+            ...acc,
+            [postId]: count,
+          }),
+          {},
+        );
+
+        setPosts(
+          data.map((post) => ({
+            id: post.id,
+            title: post.title,
+            content: post.content,
+            author: {
+              name: post.users?.name || "Unknown User",
+              avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.users?.name || "unknown"}`,
+            },
+            timestamp: new Date(post.created_at).toLocaleString(),
+            votes: post.votes || 0,
+            commentCount: commentCountMap[post.id] || 0,
+          })),
+        );
+      } catch (err) {
+        console.error("Error in fetchPosts:", err);
+        setPosts([]);
       }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Error fetching posts:", error);
-        return;
-      }
-
-      // Fetch comment counts for each post
-      const commentCounts = await Promise.all(
-        data.map(async (post) => {
-          const { count } = await supabase
-            .from("comments")
-            .select("id", { count: "exact" })
-            .eq("post_id", post.id);
-          return { postId: post.id, count };
-        }),
-      );
-
-      // Create a map of post ID to comment count
-      const commentCountMap = commentCounts.reduce(
-        (acc, { postId, count }) => ({
-          ...acc,
-          [postId]: count,
-        }),
-        {},
-      );
-
-      setPosts(
-        data.map((post) => ({
-          id: post.id,
-          title: post.title,
-          content: post.content,
-          author: {
-            name: post.users.name,
-            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.users.name}`,
-          },
-          timestamp: new Date(post.created_at).toLocaleString(),
-          votes: post.votes,
-          commentCount: commentCountMap[post.id] || 0,
-        })),
-      );
     };
 
     fetchPosts();

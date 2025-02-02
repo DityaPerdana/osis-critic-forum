@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Award, Calendar } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Navbar from "../layout/Navbar";
 
 const LandingPage = () => {
@@ -19,7 +19,6 @@ const LandingPage = () => {
               Organisasi Siswa Intra Sekolah yang mewadahi kreativitas dan
               kepemimpinan siswa-siswi SMKN 4 Payakumbuh
             </p>
-<<<<<<< HEAD
             <Link to="/forum">
               <Button
                 size="lg"
@@ -29,8 +28,6 @@ const LandingPage = () => {
                 <ArrowRight className="h-5 w-5" />
               </Button>
             </Link>
-=======
->>>>>>> 335cfb70416f28cc8676267f00a6e2be81816d5f
           </div>
         </div>
         <div
