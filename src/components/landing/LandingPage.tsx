@@ -19,15 +19,6 @@ const LandingPage = () => {
               Organisasi Siswa Intra Sekolah yang mewadahi kreativitas dan
               kepemimpinan siswa-siswi SMKN 4 Payakumbuh
             </p>
-            <Link to="/forum">
-              <Button
-                size="lg"
-                className="bg-white text-blue-600 hover:bg-blue-50 flex items-center gap-2"
-              >
-                Masuk ke Forum
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-            </Link>
           </div>
         </div>
         <div
