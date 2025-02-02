@@ -31,7 +31,11 @@ const Navbar = () => {
             </Link>
             <Link
               to="/forum"
-              className={`${isActive("/forum") ? "text-blue-600" : "text-gray-600"} hover:text-blue-500 transition-colors`}
+              className={`${isActive("/forum") ? "text-blue-600" : "text-gray-600"} hover:text-blue-500 transition-colors cursor-pointer`}
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = "/forum";
+              }}
             >
               Forum
             </Link>

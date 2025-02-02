@@ -1,12 +1,10 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Award, Calendar } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../layout/Navbar";
 
 const LandingPage = () => {
-  const navigate = useNavigate();
-
   return (
     <div className="min-h-screen bg-white overflow-auto">
       <Navbar />
@@ -21,14 +19,15 @@ const LandingPage = () => {
               Organisasi Siswa Intra Sekolah yang mewadahi kreativitas dan
               kepemimpinan siswa-siswi SMKN 4 Payakumbuh
             </p>
-            <Button
-              onClick={() => navigate("/forum")}
-              size="lg"
-              className="bg-white text-blue-600 hover:bg-blue-50 flex items-center gap-2"
-            >
-              Masuk ke Forum
-              <ArrowRight className="h-5 w-5" />
-            </Button>
+            <Link to="/forum">
+              <Button
+                size="lg"
+                className="bg-white text-blue-600 hover:bg-blue-50 flex items-center gap-2"
+              >
+                Masuk ke Forum
+                <ArrowRight className="h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </div>
         <div
@@ -92,13 +91,14 @@ const LandingPage = () => {
             Sampaikan ide, kritik, dan saranmu untuk kemajuan OSIS dan sekolah
             kita.
           </p>
-          <Button
-            onClick={() => navigate("/forum")}
-            size="lg"
-            className="bg-blue-600 text-white hover:bg-blue-700"
-          >
-            Masuk ke Forum
-          </Button>
+          <Link to="/forum">
+            <Button
+              size="lg"
+              className="bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Masuk ke Forum
+            </Button>
+          </Link>
         </div>
       </div>
 
