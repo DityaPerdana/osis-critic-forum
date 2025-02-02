@@ -22,31 +22,26 @@ const AboutPage = () => {
             <section>
               <h2 className="text-2xl font-bold mb-4">Visi</h2>
               <p className="text-gray-600">
-                Mewujudkan organisasi siswa yang unggul, kreatif, dan
-                berkarakter untuk membangun generasi pemimpin masa depan.
+              Menjadikan OSIS sebagai organisasi yang memimpin perubahan, tempat setiap siswa bisa berkembang tanpa batasan, dan membangun sekolah yang lebih seru, kreatif, dan penuh prestasi.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-bold mb-4">Misi</h2>
-              <ul className="list-disc list-inside space-y-2 text-gray-600">
-                <li>
-                  Mengembangkan potensi kepemimpinan siswa melalui kegiatan
-                  organisasi
-                </li>
-                <li>
-                  Meningkatkan kreativitas dan inovasi dalam setiap program
-                  kerja
-                </li>
-                <li>
-                  Membangun karakter siswa yang berakhlak mulia dan bertanggung
-                  jawab
-                </li>
-                <li>
-                  Menjalin kerjasama yang baik antara siswa, guru, dan sekolah
-                </li>
-                <li>Mendukung kegiatan akademik dan non-akademik sekolah</li>
-              </ul>
+                <ul className="list-inside space-y-2 text-gray-600">
+                  <li>
+                    Menjadi jembatan nyata antara siswa dan pihak sekolah, dengan mendengarkan dan mewujudkan aspirasi dari berbagai sisi.
+                  </li>
+                  <li>
+                    Membuat komunikasi di OSIS lebih terbuka dan transparan
+                  </li>
+                  <li>
+                    Melibatkan teknologi untuk mempermudah dan mempercepat penyebaran informasi, serta menciptakan kegiatan yang lebih modern dan efisien.
+                  </li>
+                  <li>
+                    Menghadirkan kegiatan yang kolaboratif dan bermanfaat
+                  </li>
+                </ul>
             </section>
 
             <section>
@@ -55,20 +50,20 @@ const AboutPage = () => {
                 <div className="space-y-4">
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <h3 className="font-semibold">Pembina OSIS</h3>
-                    <p className="text-gray-600">Drs. Ahmad Syafii</p>
+                    <p className="text-gray-600">Debby Marisha.spd</p>
                   </div>
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <h3 className="font-semibold">Ketua OSIS</h3>
-                    <p className="text-gray-600">Muhammad Rizky</p>
+                    <p className="text-gray-600">Habib Herdiansyah</p>
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="text-center p-4 bg-gray-50 rounded-lg">
                       <h3 className="font-semibold">Wakil Ketua</h3>
-                      <p className="text-gray-600">Siti Nurhaliza</p>
+                      <p className="text-gray-600">Dani Alfayet Rodes</p>
                     </div>
                     <div className="text-center p-4 bg-gray-50 rounded-lg">
                       <h3 className="font-semibold">Sekretaris</h3>
-                      <p className="text-gray-600">Putri Ramadhani</p>
+                      <p className="text-gray-600">Diva Rahmadani</p>
                     </div>
                   </div>
                 </div>
@@ -81,29 +76,33 @@ const AboutPage = () => {
               </h2>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h3 className="font-semibold mb-2">Leadership Camp</h3>
+                  <h3 className="font-semibold mb-2">Forum Diskusi</h3>
                   <p className="text-gray-600">
-                    Program pelatihan kepemimpinan intensif untuk pengurus OSIS
-                    dan siswa terpilih.
+                  Membuat forum diskusi dengan mengajak perwakilan kelas untuk ikut rapat dengan osis membahas perancangan ekstrakurikuler/fasilitas lainnya sehingga osis menjadi lebih dekat dengan para murid
                   </p>
                 </div>
                 <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h3 className="font-semibold mb-2">Gerakan Literasi</h3>
+                  <h3 className="font-semibold mb-2">Saluran Pemberitahuan</h3>
                   <p className="text-gray-600">
-                    Program membaca dan menulis untuk meningkatkan minat
-                    literasi siswa.
+                  Membuat Channel/Media Komunikasi Untuk Memberitahukan Informasi Rambut Sehingga Tidak Terjadi Pencolakan Mendadak.
                   </p>
                 </div>
                 <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h3 className="font-semibold mb-2">Green School</h3>
+                  <h3 className="font-semibold mb-2">Event Proyek</h3>
                   <p className="text-gray-600">
-                    Program peduli lingkungan dan penghijauan sekolah.
+                    Mengadakan Event Project Reward Di Akhir Semester 
                   </p>
                 </div>
                 <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h3 className="font-semibold mb-2">Social Project</h3>
+                  <h3 className="font-semibold mb-2">podcast</h3>
                   <p className="text-gray-600">
-                    Program bakti sosial dan pengabdian masyarakat.
+                    Membuat program podcast dengan mengundang narasumber dari tokoh-tokoh berhasil di kota payakumbuh atau alumni dari SMK 4
+                  </p>
+                </div>
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <h3 className="font-semibold mb-2">program osis berkembang</h3>
+                  <p className="text-gray-600">
+                    Membuat Program OSIS Berkembang yang dimana siswa memberikan kritik dan saran melalui sebuah form online
                   </p>
                 </div>
               </div>
