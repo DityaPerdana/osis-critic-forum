@@ -23,6 +23,12 @@ interface CreatePostDialogProps {
   categories?: { id: string; name: string }[];
 }
 
+interface ValidationErrors {
+  title?: string;
+  category?: string;
+  content?: string;
+}
+
 const CreatePostDialog = ({
   open = true,
   onOpenChange = () => {},
@@ -31,9 +37,22 @@ const CreatePostDialog = ({
 }: CreatePostDialogProps) => {
   const [title, setTitle] = React.useState("Sample Discussion Title");
   const [content, setContent] = React.useState("Write your thoughts here...");
-  const [categoryId, setCategoryId] = React.useState("");
+  const [categoryId, setCategoryId] = React.useState(categories[0]?.id || "");
+  const [errors, setErrors] = React.useState<ValidationErrors>({});
+
+  const validate = () => {
+    const newErrors: ValidationErrors = {};
+    if (!title.trim()) newErrors.title = "Title is required";
+    if (!categoryId) newErrors.category = "Category is required";
+    if (!content.trim()) newErrors.content = "Content is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = () => {
+    if (!validate()) {
+      return;
+    }
     onSubmit({ title, content, categoryId });
     onOpenChange(false);
   };
@@ -47,24 +66,40 @@ const CreatePostDialog = ({
 
         <div className="flex flex-col gap-4 flex-1">
           <div className="space-y-4">
-            <Input
-              placeholder="Enter discussion title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="text-lg font-semibold"
-            />
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full p-2 border rounded-md"
-            >
-              <option value="">Select Category</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+            <div>
+              <Input
+                placeholder="Enter discussion title"
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  setErrors((prev) => ({ ...prev, title: undefined }));
+                }}
+                className={`text-lg font-semibold ${errors.title ? "border-red-500" : ""}`}
+              />
+              {errors.title && (
+                <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+              )}
+            </div>
+            <div>
+              <select
+                value={categoryId}
+                onChange={(e) => {
+                  setCategoryId(e.target.value);
+                  setErrors((prev) => ({ ...prev, category: undefined }));
+                }}
+                className={`w-full p-2 border rounded-md ${errors.category ? "border-red-500" : ""}`}
+              >
+                <option value="">Select Category</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              {errors.category && (
+                <p className="text-red-500 text-sm mt-1">{errors.category}</p>
+              )}
+            </div>
           </div>
 
           <Tabs defaultValue="write" className="flex-1">
@@ -75,12 +110,22 @@ const CreatePostDialog = ({
 
             <TabsContent value="write" className="flex-1">
               <ScrollArea className="h-[350px]">
-                <Textarea
-                  placeholder="Write your post content here..."
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  className="min-h-[300px] resize-none"
-                />
+                <div>
+                  <Textarea
+                    placeholder="Write your post content here..."
+                    value={content}
+                    onChange={(e) => {
+                      setContent(e.target.value);
+                      setErrors((prev) => ({ ...prev, content: undefined }));
+                    }}
+                    className={`min-h-[300px] resize-none ${errors.content ? "border-red-500" : ""}`}
+                  />
+                  {errors.content && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.content}
+                    </p>
+                  )}
+                </div>
               </ScrollArea>
             </TabsContent>
 

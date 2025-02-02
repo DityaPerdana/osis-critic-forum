@@ -21,6 +21,9 @@ const Home = ({}: HomeProps) => {
   const [posts, setPosts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [sortBy, setSortBy] = useState<"newest" | "mostLiked">("newest");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const POSTS_PER_PAGE = 30;
   const [userVotes, setUserVotes] = useState<{ [key: string]: "up" | "down" }>(
     {},
   );
@@ -95,10 +98,26 @@ const Home = ({}: HomeProps) => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const query = supabase.from("posts").select(`
-          *,
-          users:user_id (*)
-        `);
+        // First get total count
+        const { count } = await supabase
+          .from("posts")
+          .select("*", { count: "exact", head: true });
+
+        setTotalPages(Math.ceil((count || 0) / POSTS_PER_PAGE));
+
+        // Then get paginated data
+        const from = (currentPage - 1) * POSTS_PER_PAGE;
+        const to = from + POSTS_PER_PAGE - 1;
+
+        const query = supabase
+          .from("posts")
+          .select(
+            `
+            *,
+            users:user_id (*)
+          `,
+          )
+          .range(from, to);
 
         // Apply sorting
         if (sortBy === "newest") {
@@ -169,7 +188,7 @@ const Home = ({}: HomeProps) => {
     };
 
     fetchPosts();
-  }, [sortBy]);
+  }, [sortBy, currentPage]);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -195,6 +214,10 @@ const Home = ({}: HomeProps) => {
     content: string;
     categoryId: string;
   }) => {
+    if (!data.title.trim() || !data.content.trim() || !data.categoryId) {
+      console.error("All fields are required");
+      return;
+    }
     try {
       const userData = localStorage.getItem("user");
       if (!userData) return;
@@ -411,6 +434,9 @@ const Home = ({}: HomeProps) => {
             sortBy={sortBy}
             onSortChange={setSortBy}
             userVotes={userVotes}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
           />
         </div>
 

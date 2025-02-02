@@ -22,6 +22,9 @@ interface PostListProps {
   userVotes?: { [key: string]: "up" | "down" };
   onVote?: (postId: string, type: "up" | "down") => void;
   onCommentClick?: (postId: string) => void;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
 }
 
 const PostList = ({
@@ -31,6 +34,9 @@ const PostList = ({
   sortBy = "newest",
   onSortChange = () => {},
   userVotes = {},
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange = () => {},
 }: PostListProps) => {
   return (
     <div className="w-full max-w-3xl mx-auto bg-gray-50 p-4 rounded-lg">
@@ -62,6 +68,25 @@ const PostList = ({
               onCommentClick={() => onCommentClick(post.id)}
             />
           ))}
+        </div>
+        <div className="mt-4 flex justify-center gap-2">
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-3 py-1 rounded bg-blue-500 text-white disabled:bg-gray-300 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <span className="px-3 py-1">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 rounded bg-blue-500 text-white disabled:bg-gray-300 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
         </div>
       </ScrollArea>
     </div>
