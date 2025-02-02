@@ -4,49 +4,20 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const ekstrakurikulerList = [
   {
-    name: "Pramuka",
+    name: "Bahasa Jepang",
     description:
-      "Kegiatan kepanduan yang mengembangkan karakter dan keterampilan hidup",
-    schedule: "Sabtu, 14:00 - 17:00",
+    "Kegiatan ekstrakurikuler yang mempelajari bahasa dan budaya Jepang, termasuk percakapan dasar, penulisan huruf kana, dan pengenalan budaya",
+    schedule: "Sabtu, 10:00 - 12:00",
     image:
-      "https://images.unsplash.com/photo-1632933164873-6c5c89496433?w=800&auto=format&fit=crop",
+      "/japan.webp",
   },
   {
-    name: "Palang Merah Remaja (PMR)",
+    name: "Bahasa Jerman",
     description:
-      "Organisasi kemanusiaan yang fokus pada pertolongan pertama dan kesehatan",
-    schedule: "Jumat, 14:00 - 16:00",
+    "Kegiatan ekstrakurikuler yang fokus pada pembelajaran bahasa Jerman, meliputi tata bahasa dasar, percakapan sehari-hari, dan pengenalan budaya Jerman",
+    schedule: "",
     image:
-      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&auto=format&fit=crop",
-  },
-  {
-    name: "Rohis",
-    description:
-      "Kegiatan keagamaan Islam untuk pengembangan spiritual dan akhlak",
-    schedule: "Jumat, 13:00 - 15:00",
-    image:
-      "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?w=800&auto=format&fit=crop",
-  },
-  {
-    name: "English Club",
-    description: "Klub bahasa Inggris untuk meningkatkan kemampuan berbahasa",
-    schedule: "Rabu, 15:00 - 17:00",
-    image:
-      "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=800&auto=format&fit=crop",
-  },
-  {
-    name: "Basket",
-    description: "Olahraga tim yang mengembangkan kerjasama dan kebugaran",
-    schedule: "Selasa & Kamis, 15:30 - 17:30",
-    image:
-      "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&auto=format&fit=crop",
-  },
-  {
-    name: "Seni Musik",
-    description: "Pengembangan bakat di bidang musik dan vokal",
-    schedule: "Senin, 15:00 - 17:00",
-    image:
-      "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&auto=format&fit=crop",
+      "hitler.webp",
   },
 ];
 
