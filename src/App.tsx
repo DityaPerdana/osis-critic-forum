@@ -11,14 +11,21 @@ function App() {
   return (
     <Suspense fallback={<p>Loading...</p>}>
       <div>
+        {/* For the tempo routes */}
+        {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
+
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/ekstrakurikuler" element={<EkstrakurikulerPage />} />
           <Route path="/forum" element={<Home />} />
+          <Route path="/forum/" element={<Home />} />
+          {/* Add this before the catchall route */}
+          {import.meta.env.VITE_TEMPO === "true" && (
+            <Route path="/tempobook/*" />
+          )}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-        {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
       </div>
     </Suspense>
   );

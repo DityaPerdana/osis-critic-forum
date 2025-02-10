@@ -34,7 +34,7 @@ const Navbar = () => {
               className={`${isActive("/forum") ? "text-blue-600" : "text-gray-600"} hover:text-blue-500 transition-colors cursor-pointer`}
               onClick={(e) => {
                 e.preventDefault();
-                window.location.href = "/forum";
+                window.location.href = "/forum/";
               }}
             >
               Forum
