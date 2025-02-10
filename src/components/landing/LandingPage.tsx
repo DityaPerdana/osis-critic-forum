@@ -147,8 +147,8 @@ const LandingPage = () => {
             <div>
               <h3 className="text-xl font-bold mb-4">Kontak</h3>
               <p className="text-gray-400">
-                Email: osis@smkn4payakumbuh.sch.id <br />
-                Instagram: @osis.smkn4pyk
+                Email: expduta@gmail.com <br />
+                Instagram: @osismpk_bluetech
               </p>
             </div>
           </div>
