@@ -12,7 +12,7 @@ const Navbar = () => {
     <nav className="bg-white shadow-sm fixed w-full top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="text-xl font-bold text-blue-600">
+          <Link to="/" className="md:text-sm sm:text-xl font-bold text-blue-600">
             OSIS SMKN 4
           </Link>
 
