@@ -28,7 +28,9 @@ const ForumHeader = ({
     <header className="w-full h-16 bg-white border-b border-gray-200">
       <div className="container mx-auto h-full px-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold">OSIS Forum</h1>
+          <h1 className="text-xl font-bold">
+            OSIS <span className="sm:hidden">Berkembang</span>
+          </h1>
         </div>
 
         <div className="flex items-center gap-4">

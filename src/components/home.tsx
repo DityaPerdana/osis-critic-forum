@@ -408,25 +408,29 @@ const Home = ({}: HomeProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 overflow-auto">
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile Header */}
       <div className="fixed top-0 left-0 w-full z-50 bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 flex items-center h-16">
+        <div className="flex items-center h-14 px-4 gap-4">
           <Link
             to="/"
-            className="text-gray-600 hover:text-blue-600 flex items-center gap-2 mr-8"
+            className="text-gray-600 flex items-center gap-1 text-sm"
           >
-            <ArrowLeft className="h-5 w-5" />
-            Kembali ke Beranda
+            <ArrowLeft className="h-4 w-4" />
+            Kembali
           </Link>
-          <ForumHeader
-            user={user}
-            onCreatePost={() => setIsCreatePostOpen(true)}
-          />
+          <h1 className="text-lg font-semibold flex-1">OSIS Forum</h1>
+          <button
+            onClick={() => setIsCreatePostOpen(true)}
+            className="bg-blue-600 text-white px-4 py-1.5 rounded-md text-sm font-medium"
+          >
+            Create Post
+          </button>
         </div>
       </div>
 
-      <main className="container mx-auto pt-24 px-4 flex gap-6">
-        <div className="flex-1">
+      <main className="pt-16 pb-20 px-4 md:container md:mx-auto">
+        <div className="w-full max-w-3xl mx-auto">
           <PostList
             posts={posts}
             onVote={handleVote}
@@ -440,36 +444,20 @@ const Home = ({}: HomeProps) => {
           />
         </div>
 
-        {/* Desktop Comments */}
-        {selectedPost && (
-          <div className="w-[400px] hidden lg:block">
-            <div className="sticky top-24">
-              <CommentSection
-                comments={comments}
-                onAddComment={handleAddComment}
-                onVote={handleCommentVote}
-                userVotes={userCommentVotes}
-              />
-            </div>
-          </div>
-        )}
-
         {/* Mobile Comments Dialog */}
-        <div className="lg:hidden">
-          <Dialog
-            open={selectedPost !== null}
-            onOpenChange={() => setSelectedPost(null)}
-          >
-            <DialogContent className="max-w-[95vw] h-[90vh]">
-              <CommentSection
-                comments={comments}
-                onAddComment={handleAddComment}
-                onVote={handleCommentVote}
-                userVotes={userCommentVotes}
-              />
-            </DialogContent>
-          </Dialog>
-        </div>
+        <Dialog
+          open={selectedPost !== null}
+          onOpenChange={() => setSelectedPost(null)}
+        >
+          <DialogContent className="max-w-[95vw] h-[90vh] p-4">
+            <CommentSection
+              comments={comments}
+              onAddComment={handleAddComment}
+              onVote={handleCommentVote}
+              userVotes={userCommentVotes}
+            />
+          </DialogContent>
+        </Dialog>
       </main>
 
       <CreatePostDialog

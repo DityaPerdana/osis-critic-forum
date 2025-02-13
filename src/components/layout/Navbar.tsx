@@ -11,12 +11,29 @@ const Navbar = () => {
   return (
     <nav className="bg-white shadow-sm fixed w-full top-0 z-50">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <Link to="/" className="md:text-sm sm:text-xl font-bold text-blue-600">
-            OSIS SMKN 4
-          </Link>
+        <div className="flex items-center justify-between h-12 sm:h-16">
+          <div className="flex items-center gap-1">
+            <Link
+              to="/"
+              className="text-sm sm:text-base font-bold text-blue-600"
+            >
+              OSIS
+            </Link>
+            <Link
+              to="/"
+              className="text-sm sm:text-base font-bold text-gray-600"
+            >
+              SMKN
+            </Link>
+            <Link
+              to="/"
+              className="text-sm sm:text-base font-bold text-blue-600"
+            >
+              4
+            </Link>
+          </div>
 
-          <div className="flex space-x-8">
+          <div className="flex space-x-4 sm:space-x-8 text-sm sm:text-base">
             <Link
               to="/about"
               className={`${isActive("/about") ? "text-blue-600" : "text-gray-600"} hover:text-blue-500 transition-colors`}

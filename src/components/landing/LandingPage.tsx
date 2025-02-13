@@ -10,12 +10,12 @@ const LandingPage = () => {
       <Navbar />
       {/* Hero Section */}
       <div className="relative bg-blue-600 text-white">
-        <div className="container mx-auto px-4 py-24">
+        <div className="container mx-auto px-4 py-12 sm:py-24">
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6">
               OSIS SMKN 4 Payakumbuh
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100">
+            <p className="text-base sm:text-xl md:text-2xl mb-6 sm:mb-8 text-blue-100">
               Organisasi Siswa Intra Sekolah yang mewadahi kreativitas dan
               kepemimpinan siswa-siswi SMKN 4 Payakumbuh
             </p>
