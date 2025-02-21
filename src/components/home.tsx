@@ -193,6 +193,7 @@ const Home = ({}: HomeProps) => {
               id: post.user_id,
               name: post.users?.name || "Unknown User",
               avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.users?.name || "unknown"}`,
+              role: post.users?.role,
             },
             timestamp: new Date(post.created_at).toLocaleString(),
             votes: post.votes || 0,

@@ -12,6 +12,7 @@ const LoginForm = () => {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [nisn, setNisn] = useState("");
   const [name, setName] = useState("");
+  const [role, setRole] = useState("RPL");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -73,7 +74,7 @@ const LoginForm = () => {
         // Create new user
         const { data: newUser, error: createError } = await supabase
           .from("users")
-          .insert({ nisn, name })
+          .insert({ nisn, name, role })
           .select()
           .single();
 
@@ -148,6 +149,23 @@ const LoginForm = () => {
                     placeholder="Enter your full name"
                   />
                 </div>
+                {mode === "signup" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Role</Label>
+                    <select
+                      id="role"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      className="w-full p-2 border rounded-md"
+                      required
+                    >
+                      <option value="RPL">RPL</option>
+                      <option value="TKJ">TKJ</option>
+                      <option value="DKV">DKV</option>
+                      <option value="BC">BC</option>
+                    </select>
+                  </div>
+                )}
                 {error && <p className="text-sm text-red-500">{error}</p>}
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading

@@ -15,6 +15,33 @@ import {
   Trash2,
 } from "lucide-react";
 
+const getBadgeColor = (role: string) => {
+  switch (role) {
+    case "Kepala Sekolah":
+      return "bg-purple-100 text-purple-800";
+    case "Waka Sekolah":
+      return "bg-indigo-100 text-indigo-800";
+    case "Ketua OSIS":
+      return "bg-blue-100 text-blue-800";
+    case "Ketua MPK":
+      return "bg-green-100 text-green-800";
+    case "Kordinator Bidang":
+      return "bg-yellow-100 text-yellow-800";
+    case "Anggota OSIS":
+      return "bg-orange-100 text-orange-800";
+    case "RPL":
+      return "bg-red-100 text-red-800";
+    case "TKJ":
+      return "bg-pink-100 text-pink-800";
+    case "DKV":
+      return "bg-teal-100 text-teal-800";
+    case "BC":
+      return "bg-gray-100 text-gray-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
 interface PostCardProps {
   id?: string;
   title?: string;
@@ -23,6 +50,7 @@ interface PostCardProps {
     id?: string;
     name: string;
     avatar: string;
+    role?: string;
   };
   timestamp?: string;
   votes?: number;
@@ -87,9 +115,17 @@ const PostCard = ({
               </div>
             )}
           </div>
-          <p className="text-xs sm:text-sm text-gray-500 truncate">
-            Posted by {author.name} • {timestamp}
-          </p>
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
+            <span>Posted by {author.name}</span>
+            {author.role && (
+              <span
+                className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getBadgeColor(author.role)}`}
+              >
+                {author.role}
+              </span>
+            )}
+            <span>• {timestamp}</span>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="px-3 pb-2 sm:px-6 sm:pb-4">
