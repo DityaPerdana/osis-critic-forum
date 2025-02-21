@@ -27,6 +27,7 @@ interface PostListProps {
   totalPages?: number;
   onPageChange?: (page: number) => void;
   onEdit?: (post: { id: string; title: string; content: string }) => void;
+  onDelete?: (postId: string) => void;
   currentUserId?: string | null;
 }
 
@@ -41,6 +42,7 @@ const PostList = ({
   totalPages = 1,
   onPageChange = () => {},
   onEdit,
+  onDelete,
   currentUserId,
 }: PostListProps) => {
   return (
@@ -79,6 +81,7 @@ const PostList = ({
                   content: post.content,
                 })
               }
+              onDelete={() => onDelete?.(post.id)}
               canEdit={currentUserId === post.author.id}
             />
           ))}

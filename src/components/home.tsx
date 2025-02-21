@@ -9,6 +9,16 @@ import CommentSection from "./forum/CommentSection";
 import LoginForm from "./auth/LoginForm";
 import { supabase } from "@/lib/supabase";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface HomeProps {}
 
@@ -22,6 +32,7 @@ const Home = ({}: HomeProps) => {
     title: string;
     content: string;
   } | null>(null);
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
@@ -489,6 +500,7 @@ const Home = ({}: HomeProps) => {
             totalPages={totalPages}
             onPageChange={setCurrentPage}
             onEdit={(post) => setEditingPost(post)}
+            onDelete={(postId) => setDeletingPostId(postId)}
             currentUserId={
               user ? JSON.parse(localStorage.getItem("user") || "{}").id : null
             }
@@ -528,6 +540,47 @@ const Home = ({}: HomeProps) => {
         onSubmit={handleEditPost}
         post={editingPost || undefined}
       />
+
+      <AlertDialog
+        open={deletingPostId !== null}
+        onOpenChange={(open) => !open && setDeletingPostId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              post.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-500 hover:bg-red-600"
+              onClick={async () => {
+                if (!deletingPostId) return;
+
+                try {
+                  const { error } = await supabase
+                    .from("posts")
+                    .delete()
+                    .eq("id", deletingPostId);
+
+                  if (error) throw error;
+
+                  // Update local state
+                  setPosts(posts.filter((post) => post.id !== deletingPostId));
+                  setDeletingPostId(null);
+                } catch (err) {
+                  console.error("Error deleting post:", err);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -7,7 +7,13 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown, MessageSquare, Pencil } from "lucide-react";
+import {
+  ThumbsUp,
+  ThumbsDown,
+  MessageSquare,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 
 interface PostCardProps {
   id?: string;
@@ -25,6 +31,7 @@ interface PostCardProps {
   onVote?: (type: "up" | "down") => void;
   onCommentClick?: () => void;
   onEdit?: () => void;
+  onDelete?: () => void;
   canEdit?: boolean;
 }
 
@@ -41,6 +48,7 @@ const PostCard = ({
   onVote = () => {},
   onCommentClick = () => {},
   onEdit = () => {},
+  onDelete = () => {},
   userVote,
   canEdit = false,
 }: PostCardProps) => {
@@ -57,15 +65,26 @@ const PostCard = ({
               {title}
             </h3>
             {canEdit && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit();
-                }}
-                className="text-gray-500 hover:text-blue-500 p-1 rounded-full hover:bg-gray-100"
-              >
-                <Pencil className="h-4 w-4" />
-              </button>
+              <div className="flex gap-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit();
+                  }}
+                  className="text-gray-500 hover:text-blue-500 p-1 rounded-full hover:bg-gray-100"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete();
+                  }}
+                  className="text-gray-500 hover:text-red-500 p-1 rounded-full hover:bg-gray-100"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
             )}
           </div>
           <p className="text-xs sm:text-sm text-gray-500 truncate">
