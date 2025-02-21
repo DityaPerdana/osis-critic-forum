@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import ForumHeader from "./forum/ForumHeader";
 import PostList from "./forum/PostList";
 import CreatePostDialog from "./forum/CreatePostDialog";
+import EditPostDialog from "./forum/EditPostDialog";
 import CommentSection from "./forum/CommentSection";
 import LoginForm from "./auth/LoginForm";
 import { supabase } from "@/lib/supabase";
@@ -16,6 +17,11 @@ const Home = ({}: HomeProps) => {
     null,
   );
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<{
+    id: string;
+    title: string;
+    content: string;
+  } | null>(null);
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
@@ -173,6 +179,7 @@ const Home = ({}: HomeProps) => {
             title: post.title,
             content: post.content,
             author: {
+              id: post.user_id,
               name: post.users?.name || "Unknown User",
               avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.users?.name || "unknown"}`,
             },
@@ -237,6 +244,46 @@ const Home = ({}: HomeProps) => {
       console.error("Error creating post:", err);
     }
     setIsCreatePostOpen(false);
+  };
+
+  const handleEditPost = async (data: { title: string; content: string }) => {
+    if (!editingPost?.id) return;
+
+    if (!data.title.trim() || !data.content.trim()) {
+      console.error("Title and content are required");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("posts")
+        .update({
+          title: data.title,
+          content: data.content,
+        })
+        .eq("id", editingPost.id);
+
+      if (error) throw error;
+
+      // Update local state immediately
+      setPosts(
+        posts.map((post) => {
+          if (post.id === editingPost.id) {
+            return {
+              ...post,
+              title: data.title,
+              content: data.content,
+            };
+          }
+          return post;
+        }),
+      );
+
+      // Close the dialog
+      setEditingPost(null);
+    } catch (err) {
+      console.error("Error updating post:", err);
+    }
   };
 
   const handleVote = async (postId: string, type: "up" | "down") => {
@@ -441,6 +488,10 @@ const Home = ({}: HomeProps) => {
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
+            onEdit={(post) => setEditingPost(post)}
+            currentUserId={
+              user ? JSON.parse(localStorage.getItem("user") || "{}").id : null
+            }
           />
         </div>
 
@@ -465,6 +516,17 @@ const Home = ({}: HomeProps) => {
         onOpenChange={setIsCreatePostOpen}
         onSubmit={handleCreatePost}
         categories={categories}
+      />
+
+      <EditPostDialog
+        open={editingPost !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingPost(null);
+          }
+        }}
+        onSubmit={handleEditPost}
+        post={editingPost || undefined}
       />
     </div>
   );

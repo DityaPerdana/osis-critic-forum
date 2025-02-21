@@ -7,6 +7,7 @@ interface Post {
   title: string;
   content: string;
   author: {
+    id: string;
     name: string;
     avatar: string;
   };
@@ -25,6 +26,8 @@ interface PostListProps {
   currentPage?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
+  onEdit?: (post: { id: string; title: string; content: string }) => void;
+  currentUserId?: string | null;
 }
 
 const PostList = ({
@@ -37,6 +40,8 @@ const PostList = ({
   currentPage = 1,
   totalPages = 1,
   onPageChange = () => {},
+  onEdit,
+  currentUserId,
 }: PostListProps) => {
   return (
     <div className="w-full max-w-3xl mx-auto bg-gray-50 p-4 rounded-lg">
@@ -57,6 +62,7 @@ const PostList = ({
           {posts.map((post) => (
             <PostCard
               key={post.id}
+              id={post.id}
               title={post.title}
               content={post.content}
               author={post.author}
@@ -66,6 +72,14 @@ const PostList = ({
               onVote={(type) => onVote(post.id, type)}
               userVote={userVotes?.[post.id]}
               onCommentClick={() => onCommentClick(post.id)}
+              onEdit={() =>
+                onEdit?.({
+                  id: post.id,
+                  title: post.title,
+                  content: post.content,
+                })
+              }
+              canEdit={currentUserId === post.author.id}
             />
           ))}
         </div>

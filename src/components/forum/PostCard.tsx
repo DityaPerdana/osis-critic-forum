@@ -7,12 +7,14 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown, MessageSquare } from "lucide-react";
+import { ThumbsUp, ThumbsDown, MessageSquare, Pencil } from "lucide-react";
 
 interface PostCardProps {
+  id?: string;
   title?: string;
   content?: string;
   author?: {
+    id?: string;
     name: string;
     avatar: string;
   };
@@ -22,6 +24,8 @@ interface PostCardProps {
   userVote?: "up" | "down";
   onVote?: (type: "up" | "down") => void;
   onCommentClick?: () => void;
+  onEdit?: () => void;
+  canEdit?: boolean;
 }
 
 const PostCard = ({
@@ -36,7 +40,9 @@ const PostCard = ({
   commentCount = 12,
   onVote = () => {},
   onCommentClick = () => {},
+  onEdit = () => {},
   userVote,
+  canEdit = false,
 }: PostCardProps) => {
   return (
     <Card className="w-full mb-4 bg-white hover:shadow-lg transition-shadow overflow-hidden">
@@ -46,9 +52,22 @@ const PostCard = ({
           <AvatarFallback>{author.name[0]}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col min-w-0 flex-1">
-          <h3 className="text-sm sm:text-base font-semibold truncate">
-            {title}
-          </h3>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-sm sm:text-base font-semibold truncate">
+              {title}
+            </h3>
+            {canEdit && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+                className="text-gray-500 hover:text-blue-500 p-1 rounded-full hover:bg-gray-100"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+            )}
+          </div>
           <p className="text-xs sm:text-sm text-gray-500 truncate">
             Posted by {author.name} • {timestamp}
           </p>
