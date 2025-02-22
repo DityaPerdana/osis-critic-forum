@@ -163,6 +163,8 @@ const LoginForm = () => {
                       <option value="TKJ">TKJ</option>
                       <option value="DKV">DKV</option>
                       <option value="BC">BC</option>
+                      <option value="Developer">Developer</option>
+                      <option value="Admin">Admin</option>
                     </select>
                   </div>
                 )}

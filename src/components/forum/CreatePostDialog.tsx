@@ -19,6 +19,7 @@ interface CreatePostDialogProps {
     title: string;
     content: string;
     categoryId: string;
+    isAnonymous: boolean;
   }) => void;
   categories?: { id: string; name: string }[];
 }
@@ -38,6 +39,7 @@ const CreatePostDialog = ({
   const [title, setTitle] = React.useState("Sample Discussion Title");
   const [content, setContent] = React.useState("Write your thoughts here...");
   const [categoryId, setCategoryId] = React.useState(categories[0]?.id || "");
+  const [isAnonymous, setIsAnonymous] = React.useState(false);
   const [errors, setErrors] = React.useState<ValidationErrors>({});
 
   const validate = () => {
@@ -53,7 +55,7 @@ const CreatePostDialog = ({
     if (!validate()) {
       return;
     }
-    onSubmit({ title, content, categoryId });
+    onSubmit({ title, content, categoryId, isAnonymous });
     onOpenChange(false);
   };
 
@@ -99,6 +101,18 @@ const CreatePostDialog = ({
               {errors.category && (
                 <p className="text-red-500 text-sm mt-1">{errors.category}</p>
               )}
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="anonymous"
+                checked={isAnonymous}
+                onChange={(e) => setIsAnonymous(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              <label htmlFor="anonymous" className="text-sm text-gray-600">
+                Post Anonymously
+              </label>
             </div>
           </div>
 

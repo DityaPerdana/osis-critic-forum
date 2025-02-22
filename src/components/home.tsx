@@ -9,6 +9,8 @@ import CommentSection from "./forum/CommentSection";
 import LoginForm from "./auth/LoginForm";
 import { supabase } from "@/lib/supabase";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +49,13 @@ const Home = ({}: HomeProps) => {
   const [userCommentVotes, setUserCommentVotes] = useState<{
     [key: string]: "up" | "down";
   }>({});
+  const [editingComment, setEditingComment] = useState<{
+    id: string;
+    content: string;
+  } | null>(null);
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     const fetchUserVotes = async () => {
@@ -191,9 +200,13 @@ const Home = ({}: HomeProps) => {
             content: post.content,
             author: {
               id: post.user_id,
-              name: post.users?.name || "Unknown User",
-              avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.users?.name || "unknown"}`,
-              role: post.users?.role,
+              name: post.is_anonymous
+                ? "Anonymous"
+                : post.users?.name || "Unknown User",
+              avatar: post.is_anonymous
+                ? `https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous${post.id}`
+                : `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.users?.name || "unknown"}`,
+              role: post.is_anonymous ? "Anonymous" : post.users?.role,
             },
             timestamp: new Date(post.created_at).toLocaleString(),
             votes: post.votes || 0,
@@ -232,6 +245,7 @@ const Home = ({}: HomeProps) => {
     title: string;
     content: string;
     categoryId: string;
+    isAnonymous: boolean;
   }) => {
     if (!data.title.trim() || !data.content.trim() || !data.categoryId) {
       console.error("All fields are required");
@@ -248,6 +262,7 @@ const Home = ({}: HomeProps) => {
         user_id: userId,
         category_id: data.categoryId,
         votes: 0,
+        is_anonymous: data.isAnonymous,
       });
 
       if (error) throw error;
@@ -375,8 +390,10 @@ const Home = ({}: HomeProps) => {
         id: comment.id,
         content: comment.content,
         author: {
+          id: comment.user_id,
           name: comment.users.name,
           avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.users.name}`,
+          role: comment.users.role,
         },
         timestamp: new Date(comment.created_at).toLocaleString(),
         votes: comment.votes || 0,
@@ -468,61 +485,26 @@ const Home = ({}: HomeProps) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile Header */}
-      <div className="fixed top-0 left-0 w-full z-50 bg-white border-b border-gray-200">
-        <div className="flex items-center h-14 px-4 gap-4">
-          <Link
-            to="/"
-            className="text-gray-600 flex items-center gap-1 text-sm"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Kembali
-          </Link>
-          <h1 className="text-lg font-semibold flex-1">OSIS Forum</h1>
-          <button
-            onClick={() => setIsCreatePostOpen(true)}
-            className="bg-blue-600 text-white px-4 py-1.5 rounded-md text-sm font-medium"
-          >
-            Create Post
-          </button>
-        </div>
+      <ForumHeader onCreatePost={() => setIsCreatePostOpen(true)} user={user} />
+
+      <div className="container mx-auto px-4 py-8">
+        <PostList
+          posts={posts}
+          onVote={handleVote}
+          onCommentClick={handleCommentClick}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          userVotes={userVotes}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          onEdit={(post) => setEditingPost(post)}
+          onDelete={(postId) => setDeletingPostId(postId)}
+          currentUserId={
+            user ? JSON.parse(localStorage.getItem("user") || "{}").id : null
+          }
+        />
       </div>
-
-      <main className="pt-16 pb-20 px-4 md:container md:mx-auto">
-        <div className="w-full max-w-3xl mx-auto">
-          <PostList
-            posts={posts}
-            onVote={handleVote}
-            onCommentClick={handleCommentClick}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            userVotes={userVotes}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            onEdit={(post) => setEditingPost(post)}
-            onDelete={(postId) => setDeletingPostId(postId)}
-            currentUserId={
-              user ? JSON.parse(localStorage.getItem("user") || "{}").id : null
-            }
-          />
-        </div>
-
-        {/* Mobile Comments Dialog */}
-        <Dialog
-          open={selectedPost !== null}
-          onOpenChange={() => setSelectedPost(null)}
-        >
-          <DialogContent className="max-w-[95vw] h-[90vh] p-4">
-            <CommentSection
-              comments={comments}
-              onAddComment={handleAddComment}
-              onVote={handleCommentVote}
-              userVotes={userCommentVotes}
-            />
-          </DialogContent>
-        </Dialog>
-      </main>
 
       <CreatePostDialog
         open={isCreatePostOpen}
@@ -531,16 +513,35 @@ const Home = ({}: HomeProps) => {
         categories={categories}
       />
 
-      <EditPostDialog
-        open={editingPost !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditingPost(null);
-          }
-        }}
-        onSubmit={handleEditPost}
-        post={editingPost || undefined}
-      />
+      {editingPost && (
+        <EditPostDialog
+          open={true}
+          onOpenChange={() => setEditingPost(null)}
+          onSubmit={handleEditPost}
+          post={editingPost}
+        />
+      )}
+
+      <Dialog
+        open={selectedPost !== null}
+        onOpenChange={() => setSelectedPost(null)}
+      >
+        <DialogContent className="max-w-3xl">
+          <CommentSection
+            comments={comments}
+            onAddComment={handleAddComment}
+            onVote={handleCommentVote}
+            userVotes={userCommentVotes}
+            onEdit={(commentId, content) =>
+              setEditingComment({ id: commentId, content })
+            }
+            onDelete={(commentId) => setDeletingCommentId(commentId)}
+            currentUserId={
+              user ? JSON.parse(localStorage.getItem("user") || "{}").id : null
+            }
+          />
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog
         open={deletingPostId !== null}
@@ -548,10 +549,10 @@ const Home = ({}: HomeProps) => {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Post?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete your
-              post.
+              post and all its comments.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -562,6 +563,13 @@ const Home = ({}: HomeProps) => {
                 if (!deletingPostId) return;
 
                 try {
+                  // First delete all comments
+                  await supabase
+                    .from("comments")
+                    .delete()
+                    .eq("post_id", deletingPostId);
+
+                  // Then delete the post
                   const { error } = await supabase
                     .from("posts")
                     .delete()
@@ -582,6 +590,103 @@ const Home = ({}: HomeProps) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog
+        open={deletingCommentId !== null}
+        onOpenChange={(open) => !open && setDeletingCommentId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Comment?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              comment.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-500 hover:bg-red-600"
+              onClick={async () => {
+                if (!deletingCommentId) return;
+
+                try {
+                  const { error } = await supabase
+                    .from("comments")
+                    .delete()
+                    .eq("id", deletingCommentId);
+
+                  if (error) throw error;
+
+                  // Update local state
+                  setComments(
+                    comments.filter(
+                      (comment) => comment.id !== deletingCommentId,
+                    ),
+                  );
+                  setDeletingCommentId(null);
+                } catch (err) {
+                  console.error("Error deleting comment:", err);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog
+        open={editingComment !== null}
+        onOpenChange={(open) => !open && setEditingComment(null)}
+      >
+        <DialogContent className="max-w-[500px]">
+          <div className="py-4">
+            <Textarea
+              value={editingComment?.content || ""}
+              onChange={(e) =>
+                setEditingComment((prev) =>
+                  prev ? { ...prev, content: e.target.value } : null,
+                )
+              }
+              className="min-h-[100px]"
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setEditingComment(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (!editingComment) return;
+
+                try {
+                  const { error } = await supabase
+                    .from("comments")
+                    .update({ content: editingComment.content })
+                    .eq("id", editingComment.id);
+
+                  if (error) throw error;
+
+                  // Update local state
+                  setComments(
+                    comments.map((comment) =>
+                      comment.id === editingComment.id
+                        ? { ...comment, content: editingComment.content }
+                        : comment,
+                    ),
+                  );
+                  setEditingComment(null);
+                } catch (err) {
+                  console.error("Error updating comment:", err);
+                }
+              }}
+            >
+              Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
