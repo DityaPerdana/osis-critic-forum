@@ -82,7 +82,21 @@ const PostList = ({
                 })
               }
               onDelete={() => onDelete?.(post.id)}
-              canEdit={currentUserId === post.author.id}
+              canEdit={(() => {
+                try {
+                  const userData = JSON.parse(
+                    localStorage.getItem("user") || "{}",
+                  );
+                  const userRole = userData?.role;
+                  return (
+                    currentUserId === post.author.id ||
+                    userRole === "Developer" ||
+                    userRole === "Admin"
+                  );
+                } catch (e) {
+                  return false;
+                }
+              })()}
             />
           ))}
         </div>

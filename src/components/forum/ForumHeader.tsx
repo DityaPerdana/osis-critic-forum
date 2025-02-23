@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { PenSquare, LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,14 +35,38 @@ const ForumHeader = ({
         </div>
 
         <div className="flex items-center gap-4">
-          <Button
-            variant="default"
-            onClick={onCreatePost}
-            className="flex items-center gap-2"
-          >
-            <PenSquare className="h-4 w-4" />
-            Create Post
-          </Button>
+          <div className="flex items-center gap-4">
+            {(() => {
+              const userData = JSON.parse(localStorage.getItem("user") || "{}");
+              const allowedRoles = [
+                "Kepala Sekolah",
+                "Waka Sekolah",
+                "Ketua OSIS",
+                "Ketua MPK",
+                "Developer",
+                "Admin",
+              ];
+              if (allowedRoles.includes(userData.role)) {
+                return (
+                  <Link
+                    to="/dashboard"
+                    className="text-blue-600 hover:text-blue-700 transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                );
+              }
+              return null;
+            })()}
+            <Button
+              variant="default"
+              onClick={onCreatePost}
+              className="flex items-center gap-2"
+            >
+              <PenSquare className="h-4 w-4" />
+              Create Post
+            </Button>
+          </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger>

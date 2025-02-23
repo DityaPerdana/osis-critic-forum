@@ -5,6 +5,7 @@ import LandingPage from "./components/landing/LandingPage";
 import AboutPage from "./components/about/AboutPage";
 import EkstrakurikulerPage from "./components/ekstrakurikuler/EkstrakurikulerPage";
 import NotFoundPage from "./components/error/NotFoundPage";
+import DashboardPage from "./components/dashboard/DashboardPage";
 import routes from "tempo-routes";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/ekstrakurikuler" element={<EkstrakurikulerPage />} />
           <Route path="/forum" element={<Home />} />
           <Route path="/forum/" element={<Home />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           {/* Add this before the catchall route */}
           {import.meta.env.VITE_TEMPO === "true" && (
             <Route path="/tempobook/*" />
