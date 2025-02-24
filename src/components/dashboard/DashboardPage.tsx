@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../layout/Navbar";
 import { supabase } from "@/lib/supabase";
+import { useLoading } from "@/contexts/LoadingContext";
 import {
   Table,
   TableBody,
@@ -45,10 +46,10 @@ const AVAILABLE_ROLES = [
 
 const DashboardPage = () => {
   const navigate = useNavigate();
+  const { setIsLoading } = useLoading();
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
 
   const checkAccess = () => {
@@ -61,8 +62,6 @@ const DashboardPage = () => {
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      setLoading(true);
-
       // Get total count
       const { count } = await supabase
         .from("users")
@@ -85,12 +84,18 @@ const DashboardPage = () => {
     } catch (err) {
       console.error("Error fetching users:", err);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    checkAccess();
+    fetchUsers();
+  }, [currentPage]);
+
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {
+      setIsLoading(true);
       const { error } = await supabase
         .from("users")
         .update({ role: newRole })
@@ -100,6 +105,8 @@ const DashboardPage = () => {
       fetchUsers(); // Refresh the list
     } catch (err) {
       console.error("Error updating user role:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -160,14 +167,66 @@ const DashboardPage = () => {
                               "Are you sure you want to delete this user?",
                             )
                           ) {
-                            const { error } = await supabase
-                              .from("users")
-                              .delete()
-                              .eq("id", user.id);
-                            if (error) {
-                              console.error("Error deleting user:", error);
-                            } else {
-                              fetchUsers();
+                            setIsLoading(true);
+                            try {
+                              // First delete all user's posts and their associated comments
+                              const { data: userPosts } = await supabase
+                                .from("posts")
+                                .select("id")
+                                .eq("user_id", user.id);
+
+                              if (userPosts) {
+                                for (const post of userPosts) {
+                                  // Delete comments for each post
+                                  await supabase
+                                    .from("comments")
+                                    .delete()
+                                    .eq("post_id", post.id);
+
+                                  // Delete post votes
+                                  await supabase
+                                    .from("post_votes")
+                                    .delete()
+                                    .eq("post_id", post.id);
+                                }
+
+                                // Delete all posts
+                                await supabase
+                                  .from("posts")
+                                  .delete()
+                                  .eq("user_id", user.id);
+                              }
+
+                              // Delete user's comment votes
+                              await supabase
+                                .from("comment_votes")
+                                .delete()
+                                .eq("user_id", user.id);
+
+                              // Delete user's comments
+                              await supabase
+                                .from("comments")
+                                .delete()
+                                .eq("user_id", user.id);
+
+                              // Delete user's post votes
+                              await supabase
+                                .from("post_votes")
+                                .delete()
+                                .eq("user_id", user.id);
+
+                              // Finally delete the user
+                              const { error } = await supabase
+                                .from("users")
+                                .delete()
+                                .eq("id", user.id);
+
+                              if (error) throw error;
+                              fetchUsers(); // Refresh the list
+                            } catch (err) {
+                              console.error("Error deleting user:", err);
+                            } finally {
+                              setIsLoading(false);
                             }
                           }
                         }}
