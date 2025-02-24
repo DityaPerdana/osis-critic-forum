@@ -59,7 +59,7 @@ const PostList = ({
           <option value="mostLiked">Most Liked</option>
         </select>
       </div>
-      <ScrollArea className="h-[800px] w-full pr-4">
+      <div className="w-full pr-4">
         <div className="space-y-4">
           {posts.map((post) => (
             <PostCard
@@ -119,7 +119,7 @@ const PostList = ({
             Next
           </button>
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 };

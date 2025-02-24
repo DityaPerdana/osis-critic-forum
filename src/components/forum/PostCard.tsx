@@ -77,10 +77,6 @@ const PostCard = ({
   return (
     <Card className="w-full mb-4 bg-white hover:shadow-lg transition-shadow overflow-hidden">
       <CardHeader className="flex flex-row items-start gap-3 p-3 sm:p-6">
-        <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
-          <AvatarImage src={author.avatar} alt={author.name} />
-          <AvatarFallback>{author.name[0]}</AvatarFallback>
-        </Avatar>
         <div className="flex flex-col min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-sm sm:text-base font-semibold truncate">
@@ -110,14 +106,16 @@ const PostCard = ({
             )}
           </div>
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
-            <span>Posted by {author.name}</span>
-            {author.role && (
-              <span
-                className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getBadgeColor(author.role)}`}
-              >
-                {author.role}
-              </span>
-            )}
+            <div className="flex items-center gap-1.5">
+              <span>By {author.name}</span>
+              {author.role && (
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getBadgeColor(author.role)}`}
+                >
+                  {author.role}
+                </span>
+              )}
+            </div>
             <span>• {timestamp}</span>
           </div>
         </div>

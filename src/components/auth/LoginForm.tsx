@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLoading } from "@/contexts/LoadingContext";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,10 +33,13 @@ const LoginForm = () => {
     }
   };
 
+  const { setIsLoading } = useLoading();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setIsLoading(true);
 
     try {
       validateInput();
@@ -87,6 +91,7 @@ const LoginForm = () => {
       setError(err.message);
     } finally {
       setLoading(false);
+      setIsLoading(false);
     }
   };
 

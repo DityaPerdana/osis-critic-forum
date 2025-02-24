@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Pencil } from "lucide-react";
 import ForumHeader from "./forum/ForumHeader";
@@ -11,6 +12,7 @@ import { supabase } from "@/lib/supabase";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { useLoading } from "@/contexts/LoadingContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +27,7 @@ import {
 interface HomeProps {}
 
 const Home = ({}: HomeProps) => {
+  const { setIsLoading } = useLoading();
   const [user, setUser] = useState<{ name: string; avatar: string } | null>(
     null,
   );
@@ -56,6 +59,109 @@ const Home = ({}: HomeProps) => {
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(
     null,
   );
+
+  const fetchPosts = async () => {
+    setIsLoading(true);
+    try {
+      // First get total count
+      const { count } = await supabase
+        .from("posts")
+        .select("*", { count: "exact", head: true });
+
+      setTotalPages(Math.ceil((count || 0) / POSTS_PER_PAGE));
+
+      // Then get paginated data
+      const from = (currentPage - 1) * POSTS_PER_PAGE;
+      const to = from + POSTS_PER_PAGE - 1;
+
+      const query = supabase
+        .from("posts")
+        .select(
+          `
+          *,
+          users:user_id (*)
+        `,
+        )
+        .range(from, to);
+
+      // Apply sorting
+      if (sortBy === "newest") {
+        query.order("created_at", { ascending: false });
+      } else if (sortBy === "mostLiked") {
+        query.order("votes", { ascending: false });
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("Error fetching posts:", error);
+        setPosts([]);
+        return;
+      }
+
+      if (!data) {
+        setPosts([]);
+        return;
+      }
+
+      // Fetch comment counts for each post
+      const commentCounts = await Promise.all(
+        data.map(async (post) => {
+          try {
+            const { count } = await supabase
+              .from("comments")
+              .select("id", { count: "exact" })
+              .eq("post_id", post.id);
+            return { postId: post.id, count };
+          } catch (err) {
+            console.error(`Error fetching comments for post ${post.id}:`, err);
+            return { postId: post.id, count: 0 };
+          }
+        }),
+      );
+
+      // Create a map of post ID to comment count
+      const commentCountMap = commentCounts.reduce(
+        (acc, { postId, count }) => ({
+          ...acc,
+          [postId]: count,
+        }),
+        {},
+      );
+
+      setPosts(
+        data.map((post) => ({
+          id: post.id,
+          title: post.title,
+          content: post.content,
+          author: {
+            id: post.user_id,
+            name: post.is_anonymous
+              ? "Anonymous"
+              : post.users?.name || "Unknown User",
+            avatar: post.is_anonymous
+              ? `https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous${post.id}`
+              : `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.users?.name || "unknown"}`,
+            role: post.is_anonymous ? "Anonymous" : post.users?.role,
+          },
+          timestamp: formatDistanceToNow(new Date(post.created_at), {
+            addSuffix: true,
+          }),
+          votes: post.votes || 0,
+          commentCount: commentCountMap[post.id] || 0,
+        })),
+      );
+    } catch (err) {
+      console.error("Error in fetchPosts:", err);
+      setPosts([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, [sortBy, currentPage]);
 
   useEffect(() => {
     const fetchUserVotes = async () => {
@@ -122,107 +228,6 @@ const Home = ({}: HomeProps) => {
   }, []);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        // First get total count
-        const { count } = await supabase
-          .from("posts")
-          .select("*", { count: "exact", head: true });
-
-        setTotalPages(Math.ceil((count || 0) / POSTS_PER_PAGE));
-
-        // Then get paginated data
-        const from = (currentPage - 1) * POSTS_PER_PAGE;
-        const to = from + POSTS_PER_PAGE - 1;
-
-        const query = supabase
-          .from("posts")
-          .select(
-            `
-            *,
-            users:user_id (*)
-          `,
-          )
-          .range(from, to);
-
-        // Apply sorting
-        if (sortBy === "newest") {
-          query.order("created_at", { ascending: false });
-        } else if (sortBy === "mostLiked") {
-          query.order("votes", { ascending: false });
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-          console.error("Error fetching posts:", error);
-          setPosts([]);
-          return;
-        }
-
-        if (!data) {
-          setPosts([]);
-          return;
-        }
-
-        // Fetch comment counts for each post
-        const commentCounts = await Promise.all(
-          data.map(async (post) => {
-            try {
-              const { count } = await supabase
-                .from("comments")
-                .select("id", { count: "exact" })
-                .eq("post_id", post.id);
-              return { postId: post.id, count };
-            } catch (err) {
-              console.error(
-                `Error fetching comments for post ${post.id}:`,
-                err,
-              );
-              return { postId: post.id, count: 0 };
-            }
-          }),
-        );
-
-        // Create a map of post ID to comment count
-        const commentCountMap = commentCounts.reduce(
-          (acc, { postId, count }) => ({
-            ...acc,
-            [postId]: count,
-          }),
-          {},
-        );
-
-        setPosts(
-          data.map((post) => ({
-            id: post.id,
-            title: post.title,
-            content: post.content,
-            author: {
-              id: post.user_id,
-              name: post.is_anonymous
-                ? "Anonymous"
-                : post.users?.name || "Unknown User",
-              avatar: post.is_anonymous
-                ? `https://api.dicebear.com/7.x/avataaars/svg?seed=anonymous${post.id}`
-                : `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.users?.name || "unknown"}`,
-              role: post.is_anonymous ? "Anonymous" : post.users?.role,
-            },
-            timestamp: new Date(post.created_at).toLocaleString(),
-            votes: post.votes || 0,
-            commentCount: commentCountMap[post.id] || 0,
-          })),
-        );
-      } catch (err) {
-        console.error("Error in fetchPosts:", err);
-        setPosts([]);
-      }
-    };
-
-    fetchPosts();
-  }, [sortBy, currentPage]);
-
-  useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedUser = JSON.parse(userData);
@@ -251,6 +256,8 @@ const Home = ({}: HomeProps) => {
       console.error("All fields are required");
       return;
     }
+
+    setIsLoading(true);
     try {
       const userData = localStorage.getItem("user");
       if (!userData) return;
@@ -266,11 +273,13 @@ const Home = ({}: HomeProps) => {
       });
 
       if (error) throw error;
-      window.location.reload(); // Refresh to show new post
+      fetchPosts(); // Refresh posts instead of reloading
     } catch (err) {
       console.error("Error creating post:", err);
+    } finally {
+      setIsLoading(false);
+      setIsCreatePostOpen(false);
     }
-    setIsCreatePostOpen(false);
   };
 
   const handleEditPost = async (data: { title: string; content: string }) => {
@@ -281,6 +290,7 @@ const Home = ({}: HomeProps) => {
       return;
     }
 
+    setIsLoading(true);
     try {
       const { error } = await supabase
         .from("posts")
@@ -310,10 +320,13 @@ const Home = ({}: HomeProps) => {
       setEditingPost(null);
     } catch (err) {
       console.error("Error updating post:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleVote = async (postId: string, type: "up" | "down") => {
+    setIsLoading(true);
     try {
       const userData = localStorage.getItem("user");
       if (!userData) return;
@@ -364,46 +377,58 @@ const Home = ({}: HomeProps) => {
       );
     } catch (err) {
       console.error("Error updating vote:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleCommentClick = async (postId: string) => {
+    setIsLoading(true);
     setSelectedPost(postId);
-    const { data, error } = await supabase
-      .from("comments")
-      .select(
-        `
-        *,
-        users:user_id (*)
-      `,
-      )
-      .eq("post_id", postId)
-      .order("created_at", { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .select(
+          `
+          *,
+          users:user_id (*)
+        `,
+        )
+        .eq("post_id", postId)
+        .order("created_at", { ascending: true });
 
-    if (error) {
-      console.error("Error fetching comments:", error);
-      return;
+      if (error) {
+        console.error("Error fetching comments:", error);
+        return;
+      }
+
+      setComments(
+        data.map((comment) => ({
+          id: comment.id,
+          content: comment.content,
+          author: {
+            id: comment.user_id,
+            name: comment.users.name,
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.users.name}`,
+            role: comment.users.role,
+          },
+          timestamp: formatDistanceToNow(new Date(comment.created_at), {
+            addSuffix: true,
+          }),
+          votes: comment.votes || 0,
+          parent_id: comment.parent_id,
+          replies: [], // Will be populated by the CommentSection component
+        })),
+      );
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+    } finally {
+      setIsLoading(false);
     }
-
-    setComments(
-      data.map((comment) => ({
-        id: comment.id,
-        content: comment.content,
-        author: {
-          id: comment.user_id,
-          name: comment.users.name,
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.users.name}`,
-          role: comment.users.role,
-        },
-        timestamp: new Date(comment.created_at).toLocaleString(),
-        votes: comment.votes || 0,
-        parent_id: comment.parent_id,
-        replies: [], // Will be populated by the CommentSection component
-      })),
-    );
   };
 
   const handleAddComment = async (content: string, parentId?: string) => {
+    setIsLoading(true);
     try {
       const userData = localStorage.getItem("user");
       if (!userData || !selectedPost) return;
@@ -421,10 +446,13 @@ const Home = ({}: HomeProps) => {
       handleCommentClick(selectedPost); // Refresh comments
     } catch (err) {
       console.error("Error adding comment:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleCommentVote = async (commentId: string, type: "up" | "down") => {
+    setIsLoading(true);
     try {
       const userData = localStorage.getItem("user");
       if (!userData) return;
@@ -480,6 +508,8 @@ const Home = ({}: HomeProps) => {
       );
     } catch (err) {
       console.error("Error updating comment vote:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -561,7 +591,7 @@ const Home = ({}: HomeProps) => {
               className="bg-red-500 hover:bg-red-600"
               onClick={async () => {
                 if (!deletingPostId) return;
-
+                setIsLoading(true);
                 try {
                   // First delete all comments
                   await supabase
@@ -582,6 +612,8 @@ const Home = ({}: HomeProps) => {
                   setDeletingPostId(null);
                 } catch (err) {
                   console.error("Error deleting post:", err);
+                } finally {
+                  setIsLoading(false);
                 }
               }}
             >
@@ -609,7 +641,7 @@ const Home = ({}: HomeProps) => {
               className="bg-red-500 hover:bg-red-600"
               onClick={async () => {
                 if (!deletingCommentId) return;
-
+                setIsLoading(true);
                 try {
                   const { error } = await supabase
                     .from("comments")
@@ -627,6 +659,8 @@ const Home = ({}: HomeProps) => {
                   setDeletingCommentId(null);
                 } catch (err) {
                   console.error("Error deleting comment:", err);
+                } finally {
+                  setIsLoading(false);
                 }
               }}
             >
@@ -659,7 +693,7 @@ const Home = ({}: HomeProps) => {
             <Button
               onClick={async () => {
                 if (!editingComment) return;
-
+                setIsLoading(true);
                 try {
                   const { error } = await supabase
                     .from("comments")
@@ -679,6 +713,8 @@ const Home = ({}: HomeProps) => {
                   setEditingComment(null);
                 } catch (err) {
                   console.error("Error updating comment:", err);
+                } finally {
+                  setIsLoading(false);
                 }
               }}
             >

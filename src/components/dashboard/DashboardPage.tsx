@@ -51,11 +51,6 @@ const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
 
-  useEffect(() => {
-    checkAccess();
-    fetchUsers();
-  }, [currentPage]);
-
   const checkAccess = () => {
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
     if (!ALLOWED_ROLES.includes(userData.role)) {
@@ -64,6 +59,7 @@ const DashboardPage = () => {
   };
 
   const fetchUsers = async () => {
+    setIsLoading(true);
     try {
       setLoading(true);
 
