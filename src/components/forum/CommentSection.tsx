@@ -131,29 +131,31 @@ const CommentSection = ({
     return (
       <div
         key={comment.id}
-        className={`w-full bg-white rounded-lg p-4 mb-2 ${depth > 0 ? `ml-${Math.min(depth * 4, 16)}` : ""} ${depth > 0 ? "border-l-2 border-gray-100" : ""}`}
+        className={`w-full bg-white rounded-lg p-2 sm:p-4 mb-2 ${depth > 0 ? `ml-${Math.min(depth * 2, 8)}` : ""} ${depth > 0 ? "border-l-2 border-gray-100" : ""}`}
       >
-        <div className="flex items-start gap-4">
-          <Avatar className="h-8 w-8">
+        <div className="flex items-start gap-2 sm:gap-4">
+          <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
             <AvatarImage
               src={comment.author.avatar}
               alt={comment.author.name}
             />
             <AvatarFallback>{comment.author.name[0]}</AvatarFallback>
           </Avatar>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">{comment.author.name}</span>
-                {comment.author.role && (
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getBadgeColor(comment.author.role)}`}
-                  >
-                    {comment.author.role}
-                  </span>
-                )}
-              </div>
-              <span className="text-sm text-gray-500">{comment.timestamp}</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+              <span className="font-semibold text-sm sm:text-base truncate">
+                {comment.author.name}
+              </span>
+              {comment.author.role && (
+                <span
+                  className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium ${getBadgeColor(comment.author.role)}`}
+                >
+                  {comment.author.role}
+                </span>
+              )}
+              <span className="text-xs sm:text-sm text-gray-500">
+                {comment.timestamp}
+              </span>
             </div>
             {isEditing ? (
               <div className="mt-2">
@@ -165,6 +167,7 @@ const CommentSection = ({
                 <div className="flex justify-end gap-2 mt-2">
                   <Button
                     variant="outline"
+                    size="sm"
                     onClick={() => {
                       setEditingCommentId(null);
                       setEditText("");
@@ -173,6 +176,7 @@ const CommentSection = ({
                     Cancel
                   </Button>
                   <Button
+                    size="sm"
                     onClick={() => {
                       onEdit(comment.id, editText);
                       setEditingCommentId(null);
@@ -184,72 +188,73 @@ const CommentSection = ({
                 </div>
               </div>
             ) : (
-              <p className="mt-1 text-gray-700">{comment.content}</p>
+              <p className="mt-1 text-sm text-gray-700">{comment.content}</p>
             )}
-            <div className="flex items-center gap-4 mt-2">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2">
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`h-8 w-8 p-0 hover:text-blue-500 ${userVotes?.[comment.id] === "up" ? "text-blue-500" : ""}`}
+                  className={`h-6 w-6 sm:h-8 sm:w-8 p-0 hover:text-blue-500 ${userVotes?.[comment.id] === "up" ? "text-blue-500" : ""}`}
                   onClick={() => onVote(comment.id, "up")}
                 >
-                  <ThumbsUp className="h-4 w-4" />
+                  <ThumbsUp className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
-                <span className="text-sm font-medium">{comment.votes}</span>
+                <span className="text-xs sm:text-sm font-medium min-w-[20px] text-center">
+                  {comment.votes}
+                </span>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`h-8 w-8 p-0 hover:text-red-500 ${userVotes?.[comment.id] === "down" ? "text-red-500" : ""}`}
+                  className={`h-6 w-6 sm:h-8 sm:w-8 p-0 hover:text-red-500 ${userVotes?.[comment.id] === "down" ? "text-red-500" : ""}`}
                   onClick={() => onVote(comment.id, "down")}
                 >
-                  <ThumbsDown className="h-4 w-4" />
+                  <ThumbsDown className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() =>
-                    setReplyingTo(replyingTo === comment.id ? null : comment.id)
-                  }
-                >
-                  Reply
-                </Button>
-                {canModifyComment(comment.author.id, comment.author.role) && (
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => {
-                        setEditingCommentId(comment.id);
-                        setEditText(comment.content);
-                      }}
-                      className="text-gray-500 hover:text-blue-500 p-1 rounded-full hover:bg-gray-100"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => onDelete(comment.id)}
-                      className="text-gray-500 hover:text-red-500 p-1 rounded-full hover:bg-gray-100"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                )}
-              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs"
+                onClick={() =>
+                  setReplyingTo(replyingTo === comment.id ? null : comment.id)
+                }
+              >
+                Reply
+              </Button>
+              {canModifyComment(comment.author.id) && (
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => {
+                      setEditingCommentId(comment.id);
+                      setEditText(comment.content);
+                    }}
+                    className="text-gray-500 hover:text-blue-500 p-1 rounded-full hover:bg-gray-100"
+                  >
+                    <Pencil className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </button>
+                  <button
+                    onClick={() => onDelete(comment.id)}
+                    className="text-gray-500 hover:text-red-500 p-1 rounded-full hover:bg-gray-100"
+                  >
+                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </button>
+                </div>
+              )}
               {hasReplies && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => toggleExpanded(comment.id)}
-                  className="flex items-center gap-1"
+                  className="flex items-center gap-1 h-6 px-2 text-xs"
                 >
                   {isExpanded ? (
                     <>
-                      <ChevronUp className="h-4 w-4" /> Hide Replies
+                      <ChevronUp className="h-3 w-3 sm:h-4 sm:w-4" /> Hide
                     </>
                   ) : (
                     <>
-                      <ChevronDown className="h-4 w-4" /> Show Replies
+                      <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" /> Show
                     </>
                   )}
                 </Button>
@@ -261,11 +266,12 @@ const CommentSection = ({
                   placeholder="Write a reply..."
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
-                  className="min-h-[100px]"
+                  className="min-h-[100px] text-sm"
                 />
                 <div className="flex justify-end gap-2 mt-2">
                   <Button
                     variant="outline"
+                    size="sm"
                     onClick={() => {
                       setReplyingTo(null);
                       setReplyText("");
@@ -274,6 +280,7 @@ const CommentSection = ({
                     Cancel
                   </Button>
                   <Button
+                    size="sm"
                     onClick={() => {
                       if (!replyText.trim()) return;
                       onAddComment(replyText, comment.id);
@@ -299,16 +306,17 @@ const CommentSection = ({
   };
 
   return (
-    <div className="w-full bg-gray-50 rounded-lg p-4">
-      <div className="mb-6">
+    <div className="w-full bg-gray-50 rounded-lg p-2 sm:p-4">
+      <div className="mb-4 sm:mb-6">
         <Textarea
           placeholder="Write a comment..."
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          className="min-h-[100px]"
+          className="min-h-[100px] text-sm"
         />
         <div className="flex justify-end mt-2">
           <Button
+            size="sm"
             onClick={() => {
               if (!newComment.trim()) return;
               onAddComment(newComment);
@@ -320,7 +328,7 @@ const CommentSection = ({
           </Button>
         </div>
       </div>
-      <ScrollArea className="h-[500px] pr-4">
+      <ScrollArea className="h-[400px] sm:h-[500px] pr-2 sm:pr-4">
         {comments.map((comment) => renderComment(comment, 0))}
       </ScrollArea>
     </div>

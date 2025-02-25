@@ -105,18 +105,18 @@ const PostCard = ({
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
-            <div className="flex items-center gap-1.5">
-              <span>By {author.name}</span>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="whitespace-nowrap">By {author.name}</span>
               {author.role && (
                 <span
-                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getBadgeColor(author.role)}`}
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap ${getBadgeColor(author.role)}`}
                 >
                   {author.role}
                 </span>
               )}
             </div>
-            <span>• {timestamp}</span>
+            <span className="whitespace-nowrap">• {timestamp}</span>
           </div>
         </div>
       </CardHeader>
