@@ -11,6 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import CommentSkeleton from "../skeletons/CommentSkeleton";
 import { Textarea } from "@/components/ui/textarea";
 
 const getBadgeColor = (role: string) => {
@@ -329,7 +330,15 @@ const CommentSection = ({
         </div>
       </div>
       <ScrollArea className="h-[400px] sm:h-[500px] pr-2 sm:pr-4">
-        {comments.map((comment) => renderComment(comment, 0))}
+        {comments.length === 0 ? (
+          <>
+            {[...Array(3)].map((_, i) => (
+              <CommentSkeleton key={i} />
+            ))}
+          </>
+        ) : (
+          comments.map((comment) => renderComment(comment, 0))
+        )}
       </ScrollArea>
     </div>
   );

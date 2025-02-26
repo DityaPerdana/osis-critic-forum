@@ -49,7 +49,7 @@ const LoginForm = () => {
         const { data: existingUser } = await supabase
           .from("users")
           .select()
-          .eq("nisn", nisn)
+          .eq("nisn", nisn.trim())
           .single();
 
         if (!existingUser) {
@@ -58,7 +58,9 @@ const LoginForm = () => {
           );
         }
 
-        if (existingUser.name.toLowerCase() !== name.toLowerCase()) {
+        if (
+          existingUser.name.toLowerCase().trim() !== name.toLowerCase().trim()
+        ) {
           throw new Error("Incorrect name for this NISN");
         }
 
@@ -68,7 +70,7 @@ const LoginForm = () => {
         const { data: existingUser } = await supabase
           .from("users")
           .select()
-          .eq("nisn", nisn)
+          .eq("nisn", nisn.trim())
           .single();
 
         if (existingUser) {
@@ -78,7 +80,7 @@ const LoginForm = () => {
         // Create new user
         const { data: newUser, error: createError } = await supabase
           .from("users")
-          .insert({ nisn, name, role })
+          .insert({ nisn: nisn.trim(), name: name.trim(), role })
           .select()
           .single();
 

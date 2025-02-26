@@ -36,8 +36,8 @@ const CreatePostDialog = ({
   onSubmit = () => {},
   categories = [],
 }: CreatePostDialogProps) => {
-  const [title, setTitle] = React.useState("Sample Discussion Title");
-  const [content, setContent] = React.useState("Write your thoughts here...");
+  const [title, setTitle] = React.useState("");
+  const [content, setContent] = React.useState("");
   const [categoryId, setCategoryId] = React.useState(categories[0]?.id || "");
   const [isAnonymous, setIsAnonymous] = React.useState(false);
   const [errors, setErrors] = React.useState<ValidationErrors>({});
@@ -70,7 +70,7 @@ const CreatePostDialog = ({
           <div className="space-y-4">
             <div>
               <Input
-                placeholder="Enter discussion title"
+                placeholder="Write a title for your discussion..."
                 value={title}
                 onChange={(e) => {
                   setTitle(e.target.value);
@@ -126,7 +126,7 @@ const CreatePostDialog = ({
               <ScrollArea className="h-[350px]">
                 <div>
                   <Textarea
-                    placeholder="Write your post content here..."
+                    placeholder="Share your thoughts, ideas, or questions here..."
                     value={content}
                     onChange={(e) => {
                       setContent(e.target.value);
