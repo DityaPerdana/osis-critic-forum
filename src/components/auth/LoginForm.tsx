@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/lib/supabase";
 
 const LoginForm = () => {
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode] = useState<"login" | "signup">("login");
   const [nisn, setNisn] = useState("");
   const [name, setName] = useState("");
   const [role, setRole] = useState("RPL");
@@ -44,49 +44,26 @@ const LoginForm = () => {
     try {
       validateInput();
 
-      if (mode === "login") {
-        // Login mode: Check if user exists and verify credentials
-        const { data: existingUser } = await supabase
-          .from("users")
-          .select()
-          .eq("nisn", nisn.trim())
-          .single();
+      // Login mode: Check if user exists and verify credentials
+      const { data: existingUser } = await supabase
+        .from("users")
+        .select()
+        .eq("nisn", nisn.trim())
+        .single();
 
-        if (!existingUser) {
-          throw new Error(
-            "NISN not found. Please sign up if you're a new user.",
-          );
-        }
-
-        if (
-          existingUser.name.toLowerCase().trim() !== name.toLowerCase().trim()
-        ) {
-          throw new Error("Incorrect name for this NISN");
-        }
-
-        localStorage.setItem("user", JSON.stringify(existingUser));
-      } else {
-        // Signup mode: Check if NISN already exists
-        const { data: existingUser } = await supabase
-          .from("users")
-          .select()
-          .eq("nisn", nisn.trim())
-          .single();
-
-        if (existingUser) {
-          throw new Error("NISN already registered. Please login instead.");
-        }
-
-        // Create new user
-        const { data: newUser, error: createError } = await supabase
-          .from("users")
-          .insert({ nisn: nisn.trim(), name: name.trim(), role })
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        localStorage.setItem("user", JSON.stringify(newUser));
+      if (!existingUser) {
+        throw new Error(
+          "NISN not found. Please contact administrator to create an account.",
+        );
       }
+
+      if (
+        existingUser.name.toLowerCase().trim() !== name.toLowerCase().trim()
+      ) {
+        throw new Error("Incorrect name for this NISN");
+      }
+
+      localStorage.setItem("user", JSON.stringify(existingUser));
 
       window.location.reload(); // Refresh to update UI
     } catch (err) {
@@ -119,17 +96,13 @@ const LoginForm = () => {
         </div>
 
         <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm">
-          <Tabs
-            value={mode}
-            onValueChange={(v) => setMode(v as "login" | "signup")}
-          >
+          <Tabs value={mode}>
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-center">
-                {mode === "login" ? "Login" : "Sign Up"}
+                Login
               </CardTitle>
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-1">
                 <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
             </CardHeader>
             <CardContent>
@@ -156,32 +129,10 @@ const LoginForm = () => {
                     placeholder="Enter your full name"
                   />
                 </div>
-                {mode === "signup" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="role">Role</Label>
-                    <select
-                      id="role"
-                      value={role}
-                      onChange={(e) => setRole(e.target.value)}
-                      className="w-full p-2 border rounded-md"
-                      required
-                    >
-                      <option value="RPL">RPL</option>
-                      <option value="TKJ">TKJ</option>
-                      <option value="DKV">DKV</option>
-                      <option value="BC">BC</option>
-                    </select>
-                  </div>
-                )}
+
                 {error && <p className="text-sm text-red-500">{error}</p>}
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading
-                    ? mode === "login"
-                      ? "Logging in..."
-                      : "Signing up..."
-                    : mode === "login"
-                      ? "Login"
-                      : "Sign Up"}
+                  {loading ? "Logging in..." : "Login"}
                 </Button>
               </form>
             </CardContent>

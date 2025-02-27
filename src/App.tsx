@@ -1,5 +1,4 @@
 import { Suspense, lazy } from "react";
-import { ThemeProvider } from "./contexts/ThemeContext";
 import { useRoutes, Routes, Route } from "react-router-dom";
 import LoadingPage from "./components/loading/LoadingPage";
 import routes from "tempo-routes";
@@ -17,28 +16,26 @@ const DashboardPage = lazy(
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="app-theme">
-      <Suspense fallback={<LoadingPage />}>
-        <div>
-          {/* For the tempo routes */}
-          {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
+    <Suspense fallback={<LoadingPage />}>
+      <div>
+        {/* For the tempo routes */}
+        {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
 
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/ekstrakurikuler" element={<EkstrakurikulerPage />} />
-            <Route path="/forum" element={<Home />} />
-            <Route path="/forum/" element={<Home />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            {/* Add this before the catchall route */}
-            {import.meta.env.VITE_TEMPO === "true" && (
-              <Route path="/tempobook/*" />
-            )}
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </div>
-      </Suspense>
-    </ThemeProvider>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/ekstrakurikuler" element={<EkstrakurikulerPage />} />
+          <Route path="/forum" element={<Home />} />
+          <Route path="/forum/" element={<Home />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          {/* Add this before the catchall route */}
+          {import.meta.env.VITE_TEMPO === "true" && (
+            <Route path="/tempobook/*" />
+          )}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </div>
+    </Suspense>
   );
 }
 

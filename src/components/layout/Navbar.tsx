@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ThemeToggle } from "../theme/ThemeToggle";
 
 const Navbar = () => {
   const location = useLocation();
@@ -27,7 +26,7 @@ const Navbar = () => {
   );
 
   return (
-    <nav className="bg-white shadow-sm fixed w-full top-0 z-50">
+    <nav className="bg-background shadow-sm fixed w-full top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-12 sm:h-16">
           <div className="flex items-center gap-1">
@@ -52,7 +51,6 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             {/* Hamburger Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
