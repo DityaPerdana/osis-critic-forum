@@ -110,6 +110,52 @@ const DashboardPage = () => {
     }
   };
 
+  const handleUserUpdate = async (
+    userId: string,
+    updates: { name?: string; nisn?: string },
+  ) => {
+    try {
+      setIsLoading(true);
+
+      // Validate NISN if provided
+      if (updates.nisn && !/^\d{8,10}$/.test(updates.nisn)) {
+        alert("NISN must be between 8-10 digits");
+        fetchUsers(); // Refresh to original values
+        return;
+      }
+
+      // Validate name if provided
+      if (updates.name) {
+        if (/\d/.test(updates.name)) {
+          alert("Name cannot contain numbers");
+          fetchUsers();
+          return;
+        }
+        if (updates.name.length < 3) {
+          alert("Name must be at least 3 characters long");
+          fetchUsers();
+          return;
+        }
+      }
+
+      const { error } = await supabase
+        .from("users")
+        .update(updates)
+        .eq("id", userId);
+
+      if (error) {
+        alert(error.message);
+        throw error;
+      }
+
+      fetchUsers(); // Refresh the list
+    } catch (err) {
+      console.error("Error updating user:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -133,8 +179,36 @@ const DashboardPage = () => {
               <TableBody>
                 {users.map((user: any) => (
                   <TableRow key={user.id}>
-                    <TableCell>{user.nisn}</TableCell>
-                    <TableCell>{user.name}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <input
+                          className="border rounded px-2 py-1 w-full"
+                          defaultValue={user.nisn}
+                          onBlur={(e) => {
+                            if (e.target.value !== user.nisn) {
+                              handleUserUpdate(user.id, {
+                                nisn: e.target.value,
+                              });
+                            }
+                          }}
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <input
+                          className="border rounded px-2 py-1 w-full"
+                          defaultValue={user.name}
+                          onBlur={(e) => {
+                            if (e.target.value !== user.name) {
+                              handleUserUpdate(user.id, {
+                                name: e.target.value,
+                              });
+                            }
+                          }}
+                        />
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Select
                         value={user.role}
@@ -203,11 +277,47 @@ const DashboardPage = () => {
                                 .delete()
                                 .eq("user_id", user.id);
 
-                              // Delete user's comments
-                              await supabase
+                              // First get all comments by this user
+                              const { data: userComments } = await supabase
                                 .from("comments")
-                                .delete()
+                                .select("id")
                                 .eq("user_id", user.id);
+
+                              if (userComments && userComments.length > 0) {
+                                // Delete votes on these comments
+                                await supabase
+                                  .from("comment_votes")
+                                  .delete()
+                                  .in(
+                                    "comment_id",
+                                    userComments.map((c) => c.id),
+                                  );
+
+                                // For comments with replies, update content instead of deleting
+                                for (const comment of userComments) {
+                                  const { data: replies } = await supabase
+                                    .from("comments")
+                                    .select("id")
+                                    .eq("parent_id", comment.id);
+
+                                  if (replies && replies.length > 0) {
+                                    // Update content if has replies
+                                    await supabase
+                                      .from("comments")
+                                      .update({
+                                        content:
+                                          "[This comment has been deleted]",
+                                      })
+                                      .eq("id", comment.id);
+                                  } else {
+                                    // Delete if no replies
+                                    await supabase
+                                      .from("comments")
+                                      .delete()
+                                      .eq("id", comment.id);
+                                  }
+                                }
+                              }
 
                               // Delete user's post votes
                               await supabase

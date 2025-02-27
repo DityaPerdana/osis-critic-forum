@@ -23,13 +23,6 @@ const LandingPage = () => {
         </div>
         <div
           className="absolute inset-0 z-0"
-          style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=2932&auto=format&fit=crop')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            opacity: "0.1",
-          }}
         />
       </div>
 
@@ -102,29 +95,15 @@ const LandingPage = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
               <img
-                src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800"
+                src="/isra.webp"
                 alt="Kegiatan 1"
                 className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
               />
             </div>
             <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
               <img
-                src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800"
+                src="digital.webp"
                 alt="Kegiatan 2"
-                className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-              />
-            </div>
-            <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
-              <img
-                src="https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800"
-                alt="Kegiatan 3"
-                className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-              />
-            </div>
-            <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
-              <img
-                src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800"
-                alt="Kegiatan 4"
                 className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
               />
             </div>

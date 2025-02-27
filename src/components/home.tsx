@@ -593,10 +593,33 @@ const Home = ({}: HomeProps) => {
                 if (!deletingPostId) return;
                 setIsLoading(true);
                 try {
-                  // First delete all comments
+                  // First delete all comment votes
+                  await supabase
+                    .from("comment_votes")
+                    .delete()
+                    .eq(
+                      "comment_id",
+                      "in",
+                      (
+                        await supabase
+                          .from("comments")
+                          .select("id")
+                          .eq("post_id", deletingPostId)
+                      ).data.map((c) => c.id),
+                    );
+
+                  // Delete all comments with no children first
                   await supabase
                     .from("comments")
                     .delete()
+                    .is("parent_id", null)
+                    .eq("post_id", deletingPostId);
+
+                  // Then delete all comments with parent_id
+                  await supabase
+                    .from("comments")
+                    .delete()
+                    .not.is("parent_id", null)
                     .eq("post_id", deletingPostId);
 
                   // Then delete the post
@@ -643,10 +666,33 @@ const Home = ({}: HomeProps) => {
                 if (!deletingCommentId) return;
                 setIsLoading(true);
                 try {
-                  const { error } = await supabase
-                    .from("comments")
+                  // First delete comment votes
+                  await supabase
+                    .from("comment_votes")
                     .delete()
-                    .eq("id", deletingCommentId);
+                    .eq("comment_id", deletingCommentId);
+
+                  // Check if this comment has replies
+                  const { data: replies } = await supabase
+                    .from("comments")
+                    .select("id")
+                    .eq("parent_id", deletingCommentId);
+
+                  if (replies && replies.length > 0) {
+                    // If it has replies, just update the content instead of deleting
+                    const { error } = await supabase
+                      .from("comments")
+                      .update({ content: "[This comment has been deleted]" })
+                      .eq("id", deletingCommentId);
+                    if (error) throw error;
+                  } else {
+                    // If no replies, we can safely delete it
+                    const { error } = await supabase
+                      .from("comments")
+                      .delete()
+                      .eq("id", deletingCommentId);
+                    if (error) throw error;
+                  }
 
                   if (error) throw error;
 
