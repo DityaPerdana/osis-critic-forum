@@ -597,9 +597,8 @@ const Home = ({}: HomeProps) => {
                   await supabase
                     .from("comment_votes")
                     .delete()
-                    .eq(
+                    .in(
                       "comment_id",
-                      "in",
                       (
                         await supabase
                           .from("comments")
@@ -619,7 +618,7 @@ const Home = ({}: HomeProps) => {
                   await supabase
                     .from("comments")
                     .delete()
-                    .not.is("parent_id", null)
+                    .neq("parent_id", null)
                     .eq("post_id", deletingPostId);
 
                   // Then delete the post
@@ -693,8 +692,6 @@ const Home = ({}: HomeProps) => {
                       .eq("id", deletingCommentId);
                     if (error) throw error;
                   }
-
-                  if (error) throw error;
 
                   // Update local state
                   setComments(

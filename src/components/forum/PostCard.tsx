@@ -5,7 +5,6 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   ThumbsUp,
@@ -24,13 +23,13 @@ const getBadgeColor = (role: string) => {
     case "RPL":
       return "bg-red-100 text-red-800";
     case "TKJ":
-      return "bg-pink-100 text-pink-800";
+      return "bg-green-100 text-pink-800";
     case "DKV":
-      return "bg-teal-100 text-teal-800";
+      return "bg-gray-100 text-teal-800";
     case "BC":
-      return "bg-gray-100 text-gray-800";
+      return "bg-gray-200 text-gray-800";
     case "Anonymous":
-      return "bg-gray-100 text-gray-800";
+      return "bg-gray-300 text-gray-800";
     default:
       return "bg-gray-100 text-gray-800";
   }
