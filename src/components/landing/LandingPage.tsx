@@ -9,7 +9,7 @@ const LandingPage = () => {
     <div className="min-h-screen bg-white overflow-auto">
       <Navbar />
       {/* Hero Section */}
-      <div className="relative bg-blue-600 text-white">
+      <div className="relative bg-blue-600 text-white dark:text-white">
         <div className="container mx-auto px-4 py-12 sm:py-24">
           <div className="max-w-3xl">
             <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6">

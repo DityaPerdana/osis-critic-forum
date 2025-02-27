@@ -17,7 +17,7 @@ const DashboardPage = lazy(
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="app-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="app-theme">
       <Suspense fallback={<LoadingPage />}>
         <div>
           {/* For the tempo routes */}
