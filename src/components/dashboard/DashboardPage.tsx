@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import CreateUserDialog from "./CreateUserDialog";
 import {
   Select,
@@ -20,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ArrowUpDown, Search } from "lucide-react";
 
 const ITEMS_PER_PAGE = 30;
 const ALLOWED_ROLES = [
@@ -51,6 +53,9 @@ const DashboardPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("created_at");
+  const [sortOrder, setSortOrder] = useState({ ascending: false });
 
   const checkAccess = () => {
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -62,23 +67,27 @@ const DashboardPage = () => {
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      // Get total count
-      const { count } = await supabase
-        .from("users")
-        .select("*", { count: "exact", head: true });
-
+      let query = supabase.from("users").select("*");
+      
+      // Apply search filter if search term exists
+      if (searchTerm) {
+        query = query.or(`name.ilike.%${searchTerm}%,nisn.ilike.%${searchTerm}%`);
+      }
+      
+      // Count total matching results for pagination
+      const { count } = await query.select("*", { count: "exact", head: true });
+      
       setTotalPages(Math.ceil((count || 0) / ITEMS_PER_PAGE));
-
-      // Get paginated data
+      
+      // Apply sorting
+      query = query.order(sortColumn, { ascending: sortOrder.ascending });
+      
+      // Apply pagination
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
-
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .range(from, to)
-        .order("created_at", { ascending: false });
-
+      
+      const { data, error } = await query.range(from, to);
+      
       if (error) throw error;
       setUsers(data || []);
     } catch (err) {
@@ -91,7 +100,23 @@ const DashboardPage = () => {
   useEffect(() => {
     checkAccess();
     fetchUsers();
-  }, [currentPage]);
+  }, [currentPage, searchTerm, sortColumn, sortOrder]);
+  
+  // Reset to first page when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      // Toggle sort direction if clicking the same column
+      setSortOrder({ ascending: !sortOrder.ascending });
+    } else {
+      // Set new sort column with default descending order
+      setSortColumn(column);
+      setSortOrder({ ascending: false });
+    }
+  };
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {
@@ -165,14 +190,61 @@ const DashboardPage = () => {
             <h1 className="text-2xl font-bold">User Management</h1>
             <Button onClick={() => setIsCreateUserOpen(true)}>Add User</Button>
           </div>
+          
+          {/* Search bar */}
+          <div className="mb-4 flex items-center">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search by name or NISN..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+          </div>
+          
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>NISN</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Joined</TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleSort("nisn")}
+                  >
+                    NISN
+                    {sortColumn === "nisn" && (
+                      <ArrowUpDown className={`ml-2 h-4 w-4 inline ${sortOrder.ascending ? 'rotate-180' : ''}`} />
+                    )}
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleSort("name")}
+                  >
+                    Name
+                    {sortColumn === "name" && (
+                      <ArrowUpDown className={`ml-2 h-4 w-4 inline ${sortOrder.ascending ? 'rotate-180' : ''}`} />
+                    )}
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleSort("role")}
+                  >
+                    Role
+                    {sortColumn === "role" && (
+                      <ArrowUpDown className={`ml-2 h-4 w-4 inline ${sortOrder.ascending ? 'rotate-180' : ''}`} />
+                    )}
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleSort("created_at")}
+                  >
+                    Joined
+                    {sortColumn === "created_at" && (
+                      <ArrowUpDown className={`ml-2 h-4 w-4 inline ${sortOrder.ascending ? 'rotate-180' : ''}`} />
+                    )}
+                  </TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>

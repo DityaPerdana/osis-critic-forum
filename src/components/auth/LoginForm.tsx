@@ -12,7 +12,6 @@ import { supabase } from "@/lib/supabase";
 const LoginForm = () => {
   const [mode] = useState<"login" | "signup">("login");
   const [nisn, setNisn] = useState("");
-  const [name, setName] = useState("");
   const [role, setRole] = useState("RPL");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -21,15 +20,6 @@ const LoginForm = () => {
     // Validate NISN (8-10 digits)
     if (!/^\d{8,10}$/.test(nisn)) {
       throw new Error("NISN must be between 8-10 digits");
-    }
-
-    // Validate name (no numbers)
-    if (/\d/.test(name)) {
-      throw new Error("Name cannot contain numbers");
-    }
-
-    if (name.length < 3) {
-      throw new Error("Name must be at least 3 characters long");
     }
   };
 
@@ -44,7 +34,7 @@ const LoginForm = () => {
     try {
       validateInput();
 
-      // Login mode: Check if user exists and verify credentials
+      // Login mode: Check if user exists
       const { data: existingUser } = await supabase
         .from("users")
         .select()
@@ -55,12 +45,6 @@ const LoginForm = () => {
         throw new Error(
           "NISN not found. Please contact administrator to create an account.",
         );
-      }
-
-      if (
-        existingUser.name.toLowerCase().trim() !== name.toLowerCase().trim()
-      ) {
-        throw new Error("Incorrect name for this NISN");
       }
 
       localStorage.setItem("user", JSON.stringify(existingUser));
@@ -117,16 +101,6 @@ const LoginForm = () => {
                     value={nisn}
                     onChange={(e) => setNisn(e.target.value)}
                     placeholder="Enter your NISN"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your full name"
                   />
                 </div>
 
